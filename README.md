@@ -15,4 +15,5 @@
 
 | Project Name | Stack | Description | Repo Link |
 | :--- | :--- | :--- | :--- |
-| **Log Scanner Capstone#1** | Python, Bash, Cron, `.env` | Automated CLI log inspection tool with shell automation | [View Code](https://github.com/junnybonz-dotcom/log-scanner-capstone) |
+| **Log Scanner Capstone#1** | Python, Bash, Cron, `.env` | Automated CLI log inspection tool with shell automation | (https://github.com/junnybonz-dotcom/log-scanner-capstone) |
+| **API Logger Mini-Project#1** | Python, `requests`, `json`, `cron` | Automated tool fetching GitHub repo stats (stars, issues) and appending timestamped logs to `api_log.jsonl` | (https://github.com/junnybonz-dotcom/api-logger) |

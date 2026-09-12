@@ -1,0 +1,12 @@
+[
+  {
+    "hostname": "web-01",
+    "status": "up",
+    "CPU": "40"
+  },
+  {
+    "hostname": "web-69",
+    "status": "down",
+    "CPU": "30"
+  }
+]
