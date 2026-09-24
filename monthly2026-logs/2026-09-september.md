@@ -1008,4 +1008,336 @@ sudo ss -tulpn | grep :80
 
 **Real-world use: This is the exact moment the two halves of the last two weeks click into one working system: a service running and listening (systemctl + ss) is necessary but not sufficient — the network has to allow the traffic too. Every real "why can't users reach my site" incident that isn't a code bug traces back to exactly this checklist, in exactly this order: is the process running, is it listening on the right port/interface, and is the firewall letting the request through. You've now built and diagnosed all three layers yourself, on a real machine, rather than just reading about them.**
 
-## September 20 (Day 70)
+## September 20 (Day 60) Verify from outside — curl your VM's public IP from your own machine (or browser) and confirm you get nginx's response back. Ties together SSH, systemctl, and the curl/HTTP work from Day 28.
+
+**DEFINITION:**
+No new command today — this is the day everything from Days 28–59 gets proven end-to-end, from both directions at once:
+
+1. From your **laptop**: `curl` (Day 34) hits the public IP over the internet.
+2. On the **VM**: `journalctl`/log files (Day 12, 13, 49) show that exact request arriving in real time.
+3. Seeing both sides of the same request — sent from outside, received and logged inside — is the actual proof that SSH access, `systemctl`-managed nginx, the security group rule, and HTTP itself are all correctly wired together, not just individually working in isolation.
+
+**WORKED EXAMPLES:**
+**Step 1 — open a live view on the VM, before you request anything**
+
+bash
+` SSH session, on the VM:`
+sudo tail -f /var/log/nginx/access.log
+` leave this running — nothing will print yet`
+
+**Step 2 — from your laptop, in a separate terminal, make the request**
+
+bash
+curl -i http://54.221.XX.XX
+` HTTP/1.1 200 OK`
+` Server: nginx/1.24.0`
+` Content-Type: text/html`
+` Content-Length: 615`
+` ...`
+` <!DOCTYPE html>`
+` <html>`
+` ...`
+
+`-i` (Day 34) shows the status line and headers above the body — confirming `200 OK` explicitly, not just assuming success because HTML came back.`
+
+**Step 3 — watch it land, on the VM**
+
+bash
+` back in the SSH session, the tail -f window now shows:`
+54.123.45.67 - - [20/Sep/2026:14:32:07 +0000] "GET / HTTP/1.1" 200 615 "-" "curl/8.4.0"
+
+`That's your laptop's IP, your exact request, logged the instant it arrived — the request genuinely traveled internet → security group → nginx → its own log file, and you can see every link in that chain from the VM's side.`
+
+**Step 4 — do it once more from a browser, for a different signature**
+
+Open http://54.221.XX.XX in a normal browser tab.
+
+New line appears in the tail -f window:
+54.123.45.67 - - [20/Sep/2026:14:33:41 +0000] "GET / HTTP/1.1" 200 615 "-" "Mozilla/5.0 ..."
+
+Same IP, different User-Agent string — curl identifies itself as curl/x.x.x, a browser identifies itself very differently. Worth noticing once, since access logs are read this way constantly in real troubleshooting.
+
+**Step 5 — Ctrl+C to stop watching, exit to disconnect**
+
+bash
+exit
+` back to your laptop's own prompt`
+
+**Real-world use: Watching a log file live while triggering the request yourself is one of the most reliable debugging habits in real ops work — instead of guessing whether a request even reached the server, you watch it arrive in real time and read exactly what the server saw and how it responded. This is precisely how you'd diagnose a flaky endpoint in a real job: reproduce the request, watch the log, read the actual status code and response size the server logged, rather than trusting only what the client reports back.**
+
+## September 21 (Day 61) Review + cleanup — document what you did (README or short post), check free-tier usage/limits so nothing bills you unexpectedly, and decide whether to stop or keep the instance running into Week 4's capstone.
+
+**Definition:**
+
+No new syntax today — three concrete tasks close out Week 3 properly:
+
+1. **Document** what you built — a README or short post, the same habit from Day 32/40, now covering SSH, nginx, security groups, and the full request-path verification from Day 60.
+2. **Check free-tier usage** — confirm you're still within the limits set on Day 52, so nothing bills you unexpectedly heading into Week 4.
+3. **Decide: stop or keep running** — a genuine tradeoff, not a formality, since Week 4's capstone needs a live VM.
+
+**WORKED EXAMPLES**
+**Checking free-tier usage (conceptual — AWS naming)**
+
+Console → Billing → Free Tier (or Cost Management → Free Tier usage)
+
+Look for:
+- EC2 instance hours used this month vs. the free-tier allowance
+  (typically 750 hours/month for a single t2.micro/t3.micro — comfortably
+  covers one instance running continuously all month)
+- Data transfer out (usually a separate, smaller free allowance)
+- Estimated month-to-date charges — should still read $0.00
+Console → Billing → Billing Dashboard
+
+Confirm your Day 52 alarm is still Active, not accidentally disabled.
+If you're at 0 of 750 hours used and it's not — that's worth investigating
+before Week 4, not after.
+
+**The README (mirrors Day 40's shape, scoped to this week)**
+
+markdown
+` Free-Tier VM Setu`
+
+Launched an Ubuntu 24.04 t2.micro instance on [provider], SSH-secured
+with an ed25519 key pair, running nginx as a proof-of-concept web service.
+
+` What's running`
+- nginx (installed Day 58, enabled at boot)
+- SSH restricted to my own IP; HTTP open to 0.0.0.0/0
+
+` Verified`
+- Service confirmed active via `systemctl status`
+- Listening port confirmed via `ss -tulpn`, matched by PID
+- Public reachability confirmed via `curl -i <public-ip>` and live
+  `tail -f access.log` while making the request
+
+` What tripped me up`
+- [your actual Day 55-60 error log entries — pull the real ones,
+  don't invent generic ones]
+
+**The stop-or-keep decision — reasoning through it, not just picking**
+
+Keep running if:
+  - Week 4's capstone script needs to run ON this VM (per the roadmap, it does)
+  - You're comfortably within free-tier hours (750/month covers this easily)
+
+Stop (not terminate) if:
+  - You want a clean break and don't mind re-launching
+  - Note: "stop" ≠ "terminate" — stopping preserves the instance/disk and
+    you restart it later with the same setup; terminating deletes it
+    permanently, and you'd redo Days 55-59 from scratch
+
+Given the roadmap has Week 4 building directly on this VM, keep it running is the straightforward call here — you're well inside the free-tier hour allowance for a single small instance running continuously.
+
+**Real-world use: Checking free-tier usage against the alarm you set weeks ago — rather than just trusting the alarm will fire — is a real habit worth keeping permanently: alarms can misfire, get accidentally disabled, or have thresholds set too high to catch a slow leak. The stop-vs-terminate distinction is one of the more consequential small facts in cloud work — "terminate" being irreversible (the disk is gone, not just paused) has cost people real rebuild time when they meant to just pause something.**
+
+## September 22 (Day 62) Plan it out — pick the public API, decide what data matters, sketch the SQLite schema (table name, columns, types) before writing any code.
+
+**DEFINITION:**
+Today's the day before the code — the actual engineering habit being practiced is designing the schema *before* writing a single line of Python, instead of discovering the right columns mid-script the way most first attempts do.
+
+1. **Picking the API** — for a capstone that'll run unattended (via cron eventually), the criteria matter more than the novelty of the data: no auth key required (one less thing to secure/rotate), a stable free endpoint, and a response shape that's actually worth storing over time (numbers that change — price, weather, stats — not static text).
+2. **Deciding what data matters** — a real API response is often 20+ fields; storing all of them is rarely useful. The discipline is picking the handful that answer a specific question you actually care about tracking.
+3. **Sketching the schema** — table name, column names, and SQLite types (`INTEGER`, `TEXT`, `REAL`), decided on paper/in a comment block *before* opening the API docs to write code. This mirrors Day 41–42: a table models one type of thing, with a primary key, before any `INSERT` happens.
+4. `AUTOINCREMENT` — new detail worth knowing now: `id INTEGER PRIMARY KEY AUTOINCREMENT` guarantees IDs never get reused even if rows are deleted, which matters for anything logging a history over time (unlike plain `INTEGER PRIMARY KEY`, which can reuse a deleted row's ID).
+
+**Worked examples:**
+
+**Step 1 — pick the API (an example choice, yours can differ)**
+
+Candidate: Open-Meteo (https://open-meteo.com) — free weather API, no key required.
+Endpoint: https://api.open-meteo.com/v1/forecast?latitude=X&longitude=Y&current=temperature_2m,wind_speed_10m
+
+Why this one: no auth, stable, and the data genuinely changes run to run —
+worth tracking over time, unlike a static "about" endpoint.
+
+**Step 2 — decide what data matters, before looking at the full response**
+
+Full response includes: latitude, longitude, elevation, timezone,
+generationtime_ms, utc_offset_seconds, current_units, current: {temperature_2m,
+wind_speed_10m, time}, ...
+
+What actually matters for THIS capstone:
+- when the reading was taken
+- temperature
+- wind speed
+Everything else (elevation, generationtime_ms, timezone metadata) — noise
+for this purpose. Skip it.
+
+**Step 3 — sketch the schema on paper first**
+
+table: weather_log
+
+column          type      notes
+--------------  --------  -----------------------------
+id              INTEGER   primary key, autoincrement
+fetched_at      TEXT      timestamp of OUR script run (not the API's own time field)
+temperature_c   REAL      matches current.temperature_2m
+wind_speed_kmh  REAL      matches current.wind_speed_10m
+
+Step 4 — only now, translate the sketch into SQL
+
+`sql`
+CREATE TABLE weather_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fetched_at TEXT NOT NULL,
+    temperature_c REAL,
+    wind_speed_kmh REAL
+);
+
+**A second worked example, different domain, same process**
+
+API: CoinGecko simple price endpoint (no key needed)
+Data that matters: coin name, price in USD, when checked
+Noise to skip: 24h volume, market cap, other currencies you don't need
+
+table: price_log
+column       type      notes
+-----------  --------  --------------------------
+id           INTEGER   primary key, autoincrement
+coin         TEXT      e.g. "bitcoin"
+price_usd    REAL
+checked_at   TEXT      timestamp of the fetch
+sql
+CREATE TABLE price_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    coin TEXT NOT NULL,
+    price_usd REAL,
+    checked_at TEXT NOT NULL
+);
+
+**REAL-WORLD USE: Sketching a schema before touching code is what separates a script that grows painfully (adding columns after the fact, migrating existing rows, breaking old data) from one that's stable from the first run — exactly the same discipline behind Day 41–42's relational modeling, just applied to your own project instead of a given example. Deliberately narrowing "what data matters" down from a large API response to 3–4 meaningful columns is also a real skill: logging everything an API returns feels safer but produces bloated, hard-to-query tables — the useful data usually gets buried, not protected, by the noise.**
+
+## September 23 (Day 63) On the VM, set up your Python environment — `venv` (Day 27 skill), `pip install requests` inside it, confirm `sqlite3` works (it's stdlib, no install needed).
+
+**DEFINITION:**
+1. Everything here is Day 33's `venv` skill, applied to a real remote machine instead of your laptop — same commands, new context.
+2. `python3 -m venv env_name` — creates an isolated environment. On Ubuntu, `python3` (not `python`) is the standard binary name.
+3. `source env_name/bin/activate` — activates it; your prompt prefixes with (`env_name`) once it's on.
+4. `pip install requests` — installs into the active environment only, not system-wide. Worth checking `pip --version` first to confirm you're using the venv's pip, not a system one.
+5. `import sqlite3` — part of Python's standard library, so it needs no pip install at all, in or out of a venv. Confirming this today (rather than assuming) is the actual point — it's a common early mixup to `pip install sqlite3` and get a confusing error, since the real package name on PyPI is unrelated to the stdlib module.
+6. Why a venv matters *specifically* here: this VM may end up running other Python tools later (as the roadmap progresses), and keeping this capstone's dependencies isolated from whatever comes next avoids version conflicts down the line — the exact problem Day 33 described in the abstract, now genuinely relevant.
+
+**Worked examples:**
+
+**On the VM, via SSH**
+
+bash
+python3 --version
+` Python 3.12.3   <- Ubuntu 24.04's default, confirm it's there before anything else`
+bash
+cd ~
+mkdir capstone && cd capstone
+python3 -m venv env
+source env/bin/activate
+` (env) ubuntu@ip-172-31-XX-XX:~/capstone$`
+bash
+which python3
+` /home/ubuntu/capstone/env/bin/python3`
+` confirms you're using the VENV's python, not the system one`
+
+which pip
+` /home/ubuntu/capstone/env/bin/pip`
+bash
+pip install requests
+` Collecting requests`
+` ...`
+` Successfully installed requests-2.32.x certifi-... charset-normalizer-... idna-... urllib3-...`
+bash
+pip list
+` certifi     ...`
+` charset-normalizer ...`
+` idna        ...`
+` requests    2.32.x`
+` urllib3     ...`
+
+**Confirming sqlite3 — no install step**
+
+bash
+python3 -c "import sqlite3; print(sqlite3.sqlite_version)"
+` 3.45.1`
+` works immediately — stdlib, nothing to install`
+bash
+pip install sqlite3
+` ERROR: Could not find a version that satisfies the requirement sqlite3`
+` ERROR: No matching distribution found for sqlite3`
+` expected failure — this is the mixup worth seeing once, so you recognize it later`
+
+**A quick end-to-end sanity check before Day 64's real code**
+
+bash
+python3 -c "
+import requests
+import sqlite3
+print('requests:', requests.__version__)
+print('sqlite3:', sqlite3.sqlite_version)
+"
+` requests: 2.32.x`
+` sqlite3: 3.45.1`
+` both imports succeed — environment is ready for tomorrow`
+bash
+deactivate
+` back to the system Python — confirm the venv really did isolate things:`
+python3 -c "import requests"
+` ModuleNotFoundError: No module named 'requests'`
+` expected — requests only exists inside env/, not system-wide`
+
+**REAL-WORLD USE: Confirming sqlite3 needs no install — rather than reflexively pip install-ing everything a script imports — is a small but genuinely common early trip-up, and knowing Python's standard library well enough to recognize what's already there (vs. third-party) saves real time once you're moving faster and not double-checking every import. The deactivate → confirm requests is gone check at the end is worth doing deliberately at least once: it's the actual proof that isolation is real, not just a claim from Day 33's lesson.**
+
+## September 24 (Day 64) Write the API-calling function — request, parse JSON into a dict (Day 29 skill), print it to confirm it works before touching the database.
+
+**Definition:**
+1. Today is deliberately scoped to *one* function, tested in isolation, before the database touches it at all — the same discipline as Day 62's "plan before code," now applied to "verify the fetch before you build storage on top of an assumption."
+2. `requests.get(url, timeout=10)` — Day 34/35's call, with `timeout` added: a script meant to run unattended (cron, eventually) should never hang forever on a dead connection.
+3. `response.raise_for_status()` — Day 38's habit: raises an exception on 4xx/5xx instead of silently handing you a JSON-shaped error page.
+4. The function's job today is narrow on purpose: take a URL, return a dict of *only* the fields your Day 62 schema actually needs — not the whole raw response. Trimming down to the schema's shape here means Day 65's insert code doesn't have to do any filtering itself.
+
+**Worked examples:**
+
+**Using the weather example from Day 62's schema (fetched_at, temperature_c, wind_speed_kmh) — substitute your own API/fields if you picked something different:**
+
+python
+` fetch.py`
+import requests
+import datetime
+
+API_URL = "https://api.open-meteo.com/v1/forecast?latitude=14.6&longitude=121.0&current=temperature_2m,wind_speed_10m"
+
+
+def fetch_weather():
+    response = requests.get(API_URL, timeout=10)
+    response.raise_for_status()
+    raw = response.json()
+
+    ` trim down to exactly what the Day 62 schema needs`
+    data = {
+        "fetched_at": datetime.datetime.now().isoformat(),
+        "temperature_c": raw["current"]["temperature_2m"],
+        "wind_speed_kmh": raw["current"]["wind_speed_10m"],
+    }
+    return data
+
+
+if __name__ == "__main__":
+    result = fetch_weather()
+    print(result)
+bash
+source env/bin/activate
+python3 fetch.py
+` {'fetched_at': '2026-09-24T09:12:03.481200', 'temperature_c': 29.4, 'wind_speed_kmh': 11.2}`
+
+**Confirming it fails sensibly, not silently, before moving on**
+
+python
+` quick manual check — temporarily break the URL to see the failure mode`
+API_URL = "https://api.open-meteo.com/v1/forecastXXX"
+bash
+python3 fetch.py
+` requests.exceptions.HTTPError: 404 Client Error: Not Found for url: ...`
+` raise_for_status() caught it — good, this is the expected shape of failure,`
+` not a silent empty dict or a KeyError buried three lines down`
+
+**Revert the URL once you've seen that.**
+
+**REAL-WORLD USE: Printing the trimmed dict and eyeballing it before any INSERT touches the database is a genuinely important habit — it's far easier to spot "wait, that's not the field I meant" in a printed dict than after it's already written into a table you then have to query to notice the mistake. Separating "does the fetch work" from "does the storage work" into two distinct, independently-testable steps is also just good practice generally: when something breaks later, you'll immediately know which half to look at instead of debugging both at once.**
+
+## September 25 (Day 65) 
