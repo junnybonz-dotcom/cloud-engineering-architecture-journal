@@ -1340,4 +1340,10 @@ python3 fetch.py
 
 **REAL-WORLD USE: Printing the trimmed dict and eyeballing it before any INSERT touches the database is a genuinely important habit — it's far easier to spot "wait, that's not the field I meant" in a printed dict than after it's already written into a table you then have to query to notice the mistake. Separating "does the fetch work" from "does the storage work" into two distinct, independently-testable steps is also just good practice generally: when something breaks later, you'll immediately know which half to look at instead of debugging both at once.**
 
-## September 25 (Day 65) 
+## September 25 (Day 65) Create the SQLite DB and table via Python's sqlite3 module — CREATE TABLE, then write an INSERT function for a single row.
+
+**DEFINITION:**
+
+**WORKED EXAMPLES:**
+
+**REAL-WORLD USE: 
