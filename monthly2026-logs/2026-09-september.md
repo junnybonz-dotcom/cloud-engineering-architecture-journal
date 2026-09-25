@@ -1343,7 +1343,84 @@ python3 fetch.py
 ## September 25 (Day 65) Create the SQLite DB and table via Python's sqlite3 module — CREATE TABLE, then write an INSERT function for a single row.
 
 **DEFINITION:**
+1. `sqlite3.connect("filename.db")` — opens a connection to a database file, creating it if it doesn't exist yet. This is the actual moment Day 62's plan becomes a real file on disk.
+2. `conn.cursor()` — a cursor object is what actually executes SQL statements against the connection.
+3. `cursor.execute("CREATE TABLE IF NOT EXISTS ...")` — the `IF NOT EXISTS` clause matters here specifically because this script will run repeatedly (manually today, on a schedule later): without it, the second run would error trying to recreate a table that already exists.
+4. `cursor.execute("INSERT INTO table (...) VALUES (?, ?, ?)", (val1, val2, val3))` — parameterized query. The `?` placeholders get filled in from the tuple you pass separately, rather than building the SQL string with f-strings/.`format()`.
+5. `conn.commit()` — writes pending changes to disk. Without this, an `INSERT` can sit uncommitted and effectively vanish if the connection closes before you call it.
+6. `conn.close()` — releases the connection cleanly, same habit as closing a file.
 
 **WORKED EXAMPLES:**
+**Continuing the weather example from Day 62/64 — swap in your own schema/fields if you picked a different API:**
 
-**REAL-WORLD USE: 
+python
+` db.py`
+import sqlite3
+
+DB_PATH = "weather.db"
+
+
+def create_table():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS weather_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fetched_at TEXT NOT NULL,
+            temperature_c REAL,
+            wind_speed_kmh REAL
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+
+def insert_weather(data):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO weather_log (fetched_at, temperature_c, wind_speed_kmh)
+        VALUES (?, ?, ?)
+    """, (data["fetched_at"], data["temperature_c"], data["wind_speed_kmh"]))
+    conn.commit()
+    conn.close()
+
+**Testing it, using yesterday's fetch function**
+
+python
+from fetch import fetch_weather
+from db import create_table, insert_weather
+
+create_table()
+
+data = fetch_weather()
+print(data)
+insert_weather(data)
+print("Inserted.")
+bash
+python3 test_insert.py
+` {'fetched_at': '2026-09-25T09:04:11.220100', 'temperature_c': 28.9, 'wind_speed_kmh': 9.7}`
+` Inserted.`
+
+**Confirming the row actually landed — from the sqlite3 CLI, not Python**
+
+bash
+sqlite3 weather.db
+sqlite> SELECT * FROM weather_log;
+` 1|2026-09-25T09:04:11.220100|28.9|9.7`
+sqlite> .quit
+
+**Why parameterized queries specifically — the trap they avoid**
+
+python
+` DON'T do this — building SQL with string formatting`
+cursor.execute(f"INSERT INTO weather_log (fetched_at) VALUES ('{data['fetched_at']}')")
+` works fine here, but this exact pattern is how SQL injection happens`
+` once any part of the string comes from untrusted input`
+
+` DO this instead — the ? placeholders keep data and SQL structure separate`
+cursor.execute("INSERT INTO weather_log (fetched_at) VALUES (?)", (data["fetched_at"],))
+
+**REAL-WORLD USE: CREATE TABLE IF NOT EXISTS is the standard pattern for any script that manages its own database and might run more than once — which is essentially every real logging/monitoring script, since the whole point is running repeatedly over time. Parameterized queries (? placeholders) aren't a style preference — building SQL with string interpolation is a genuine, well-known security vulnerability (SQL injection) the moment any value comes from outside your own code, so the habit of using ? from day one, even on a toy project like this, is worth building now rather than retrofitting later.**
+
+## September 26 (Day 66) 
