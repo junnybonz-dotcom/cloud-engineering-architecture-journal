@@ -1431,3 +1431,68 @@ Today has no new syntax — it's the moment Day 64's `fetch_weather()` and Day 6
 1. The wiring itself is just: call the fetch function, get the dict back, pass it straight into the insert function — no new logic needed if Days 64/65 were built with matching field names.
 2. Running it **manually, several times in a row** today (rather than via cron yet) is deliberate — it isolates "does the wiring work" from "does scheduling work," so if something breaks, you know it's not the loop's fault.
 3. Confirming rows "landed correctly" means more than "no error was thrown" — it means checking the actual data: right number of rows, distinct timestamps, values that look plausible (not `None`, not identical every time in a way that suggests the API wasn't actually re-queried).
+
+**Worked examples:**
+python
+` main.py`
+from fetch import fetch_weather
+from db import create_table, insert_weather
+
+def run_once():
+    create_table()  # safe to call every time — IF NOT EXISTS from Day 65
+    data = fetch_weather()
+    insert_weather(data)
+    print(f"Logged: {data}")
+
+if __name__ == "__main__":
+    run_once()
+
+Running it manually, several times
+
+bash
+source env/bin/activate
+python3 main.py
+` Logged: {'fetched_at': '2026-09-26T08:01:12.331', 'temperature_c': 27.8, 'wind_speed_kmh': 8.4}`
+
+python3 main.py
+` Logged: {'fetched_at': '2026-09-26T08:03:47.902', 'temperature_c': 27.9, 'wind_speed_kmh': 8.1}`
+
+python3 main.py
+# Logged: {'fetched_at': '2026-09-26T08:06:20.114', 'temperature_c': 27.9, 'wind_speed_kmh': 7.9}
+
+Confirming rows landed correctly — from the sqlite3 CLI
+
+bash
+sqlite3 weather.db
+sqlite> SELECT * FROM weather_log;
+` 1|2026-09-26T08:01:12.331|27.8|8.4`
+` 2|2026-09-26T08:03:47.902|27.9|8.1`
+` 3|2026-09-26T08:06:20.114|27.9|7.9`
+
+sqlite> SELECT COUNT(*) FROM weather_log;
+` 3`
+-- matches the 3 manual runs — no silent duplicates, no missing inserts
+
+sqlite> SELECT DISTINCT fetched_at FROM weather_log;
+-- all 3 distinct — confirms it's genuinely re-fetching, not caching/repeating
+.quit
+
+A real check worth doing today specifically — did the values actually change?
+
+sql
+SELECT temperature_c, wind_speed_kmh FROM weather_log;
+-- 27.8|8.4
+-- 27.9|8.1
+-- 27.9|7.9
+
+Small variation between runs is exactly what you want to see — it's evidence the script is hitting the live API each time, not accidentally returning a cached or hardcoded value.
+
+If something's off — the two most likely culprits
+
+python
+` 1. Forgetting conn.commit() in insert_weather() — rows silently don't persist`
+`    (SELECT * would show fewer rows than runs, or none at all)`
+
+` 2. Calling create_table() with a typo that doesn't match IF NOT EXISTS exactly —`
+`    causes an error on the 2nd run instead of being silently safe`
+
