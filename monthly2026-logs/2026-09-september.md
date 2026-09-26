@@ -1496,3 +1496,6 @@ python
 ` 2. Calling create_table() with a typo that doesn't match IF NOT EXISTS exactly —`
 `    causes an error on the 2nd run instead of being silently safe`
 
+**REAL-WORLD USE: This exact pattern — a script that fetches, inserts, and can be run repeatedly without falling over on the second run — is the actual shape of a monitoring or metrics-collection script before it's ever put on a schedule. Manually running something several times and eyeballing the accumulated data before automating it is a genuinely good habit: it's much easier to catch "wait, all three rows have identical timestamps" or "the count doesn't match the runs" now, by hand, than after it's been quietly running wrong on a schedule for a week.**
+
+## September 27 (Day 67)
