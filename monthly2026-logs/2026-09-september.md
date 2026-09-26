@@ -1423,4 +1423,11 @@ cursor.execute("INSERT INTO weather_log (fetched_at) VALUES (?)", (data["fetched
 
 **REAL-WORLD USE: CREATE TABLE IF NOT EXISTS is the standard pattern for any script that manages its own database and might run more than once — which is essentially every real logging/monitoring script, since the whole point is running repeatedly over time. Parameterized queries (? placeholders) aren't a style preference — building SQL with string interpolation is a genuine, well-known security vulnerability (SQL injection) the moment any value comes from outside your own code, so the habit of using ? from day one, even on a toy project like this, is worth building now rather than retrofitting later.**
 
-## September 26 (Day 66) 
+## September 26 (Day 66) Wire it together — each API call inserts a timestamped row (datetime + JSON fields) into the DB. Run it manually a few times, confirm rows are landing correctly.
+
+**Definition:**
+Today has no new syntax — it's the moment Day 64's `fetch_weather()` and Day 65's `create_table()`/`insert_weather()` stop being separate, individually-tested pieces and become one script you actually run repeatedly.
+
+1. The wiring itself is just: call the fetch function, get the dict back, pass it straight into the insert function — no new logic needed if Days 64/65 were built with matching field names.
+2. Running it **manually, several times in a row** today (rather than via cron yet) is deliberate — it isolates "does the wiring work" from "does scheduling work," so if something breaks, you know it's not the loop's fault.
+3. Confirming rows "landed correctly" means more than "no error was thrown" — it means checking the actual data: right number of rows, distinct timestamps, values that look plausible (not `None`, not identical every time in a way that suggests the API wasn't actually re-queried).
