@@ -1458,7 +1458,7 @@ python3 main.py
 ` Logged: {'fetched_at': '2026-09-26T08:03:47.902', 'temperature_c': 27.9, 'wind_speed_kmh': 8.1}`
 
 python3 main.py
-# Logged: {'fetched_at': '2026-09-26T08:06:20.114', 'temperature_c': 27.9, 'wind_speed_kmh': 7.9}
+` Logged: {'fetched_at': '2026-09-26T08:06:20.114', 'temperature_c': 27.9, 'wind_speed_kmh': 7.9}`
 
 Confirming rows landed correctly — from the sqlite3 CLI
 
@@ -1498,4 +1498,13 @@ python
 
 **REAL-WORLD USE: This exact pattern — a script that fetches, inserts, and can be run repeatedly without falling over on the second run — is the actual shape of a monitoring or metrics-collection script before it's ever put on a schedule. Manually running something several times and eyeballing the accumulated data before automating it is a genuinely good habit: it's much easier to catch "wait, all three rows have identical timestamps" or "the count doesn't match the runs" now, by hand, than after it's been quietly running wrong on a schedule for a week.**
 
-## September 27 (Day 67)
+## September 27 (Day 67) Error handling — wrap the API call and DB insert in try/except (Day 16 skill). What happens if the API times out or returns bad data? Don't let it crash silently.
+
+**Definition:**
+1. Day 64 already added `raise_for_status()` inside the fetch function — today wraps the *calling* code around it, so a failure doesn't crash the whole script, it's caught and handled deliberately.
+2. Three distinct failure points to think about separately:
+ * **Network/API failure** — timeout, connection refused, non-200 status (`requests.exceptions.RequestException` and its subclasses, from Day 38/64).
+ * **Bad/unexpected data shape** — the API responds with `200 OK` but the JSON doesn't have the field you expected (`KeyError`), or a field that should be a number comes back as something else (`TypeError`/`ValueError` at insert time).
+ * **Database failure** — a constraint violation, a locked file, a bad path (`sqlite3.Error` and its subclasses, from Day 42).
+3. Catching `Exception` broadly is tempting but hides *which* layer failed — catching specific exception types (as introduced Day 22) lets you log a message that actually tells you what went wrong, not just that something did.
+4. "Don't let it crash silently" cuts both ways: an uncaught exception crashes loudly (a traceback) but stops the script; a bare `except: pass` fails silently (no traceback, no log, nothing) — the correct middle ground is catching it, logging something specific, and moving on.
