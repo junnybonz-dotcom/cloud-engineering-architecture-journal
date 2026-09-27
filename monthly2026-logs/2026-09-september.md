@@ -1580,3 +1580,6 @@ except:
 ` script "succeeds" every single time, even when nothing actually got logged —`
 ` far worse than a crash, because a crash at least tells you something's wrong`
 
+**REAL-WORLD USE: This is exactly the difference between a script you can trust to run unattended (Day 68's cron job is coming) and one that silently stops working for days before anyone notices — a monitoring script that fails quietly is arguably worse than no script at all, since it creates false confidence that data is being collected when it isn't. Catching specific exception types rather than a bare except: is what lets you eventually log why a run failed (timeout vs. bad data vs. DB issue) instead of just "something happened," which matters enormously once this is running unattended and you're debugging from log output alone, days later.**
+
+## September 28 (Day 68) 
