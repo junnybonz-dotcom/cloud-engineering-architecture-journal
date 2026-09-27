@@ -1508,3 +1508,75 @@ python
  * **Database failure** — a constraint violation, a locked file, a bad path (`sqlite3.Error` and its subclasses, from Day 42).
 3. Catching `Exception` broadly is tempting but hides *which* layer failed — catching specific exception types (as introduced Day 22) lets you log a message that actually tells you what went wrong, not just that something did.
 4. "Don't let it crash silently" cuts both ways: an uncaught exception crashes loudly (a traceback) but stops the script; a bare `except: pass` fails silently (no traceback, no log, nothing) — the correct middle ground is catching it, logging something specific, and moving on.
+
+**Worked examples:**
+# main.py — same structure as Day 66, now with real error handling
+import requests
+import sqlite3
+from fetch import fetch_weather
+from db import create_table, insert_weather
+
+
+def run_once():
+    create_table()
+
+    try:
+        data = fetch_weather()
+    except requests.exceptions.Timeout:
+        print("API call timed out — skipping this run.")
+        return
+    except requests.exceptions.HTTPError as e:
+        print(f"API returned an error status: {e}")
+        return
+    except requests.exceptions.RequestException as e:
+        print(f"Network problem reaching the API: {e}")
+        return
+    except KeyError as e:
+        print(f"API response was missing an expected field: {e}")
+        return
+
+    try:
+        insert_weather(data)
+        print(f"Logged: {data}")
+    except sqlite3.Error as e:
+        print(f"Database insert failed: {e}")
+
+
+if __name__ == "__main__":
+    run_once()
+
+**Testing each failure path deliberately, one at a time**
+    python
+` 1. simulate a timeout — set an impossibly short timeout in fetch.py temporarily`
+response = requests.get(API_URL, timeout=0.001)
+bash
+python3 main.py
+` API call timed out — skipping this run.`
+python
+` 2. simulate bad data — break the URL so it 404s`
+API_URL = "https://api.open-meteo.com/v1/forecastXXX"
+bash
+python3 main.py
+` API returned an error status: 404 Client Error: Not Found for url: ...`
+python
+` 3. simulate a missing field — temporarily reference a field that doesn't exist`
+temperature_c = raw["current"]["temperature_typo"]
+bash
+python3 main.py
+` API response was missing an expected field: 'temperature_typo'`
+python
+` 4. simulate a DB failure — point insert_weather at a bad/read-only path`
+DB_PATH = "/root/no_permission.db"
+bash
+python3 main.py
+` Database insert failed: unable to open database file`
+Revert all four deliberate breaks once you've seen each message — the goal was seeing each failure produce a *specific*, useful message instead of a raw traceback or silence.
+**What NOT to do — the silent-failure trap**
+try:
+    data = fetch_weather()
+    insert_weather(data)
+except:
+    pass
+` script "succeeds" every single time, even when nothing actually got logged —`
+` far worse than a crash, because a crash at least tells you something's wrong`
+
