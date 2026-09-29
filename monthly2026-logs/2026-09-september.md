@@ -1642,3 +1642,69 @@ No new syntax today — the entire point is applying Days 43–46 (`SELECT`, `WH
 2. `AVG()`, `MAX()`, `MIN()` on `temperature_c`/`wind_speed_kmh` now answer real questions ("what was the hottest reading logged today") instead of made-up ones.
 3. `strftime('%H', fetched_at)` — a SQLite function that extracts part of a timestamp string (here, the hour) so you can group by time-of-day, not just by exact timestamp.
 
+**Worked examples**
+
+First, just see what's there
+
+bash
+ssh -i ~/.ssh/id_ed25519 ubuntu@<public-ip>
+sqlite3 ~/capstone/weather.db
+sql
+SELECT COUNT(*) FROM weather_log;
+-- 87
+-- however many 15-minute intervals have run since Day 68
+
+SELECT * FROM weather_log ORDER BY id DESC LIMIT 5;
+-- your 5 most recent readings, newest first
+
+**Week 1 skills, on real data**
+
+sql
+SELECT fetched_at, temperature_c
+FROM weather_log
+WHERE temperature_c > 30
+ORDER BY temperature_c DESC;
+-- every reading that actually crossed 30°C, hottest first
+sql
+SELECT MAX(temperature_c) AS hottest, MIN(temperature_c) AS coolest, AVG(temperature_c) AS avg_temp
+FROM weather_log;
+-- 32.1 | 26.4 | 28.7
+-- real range and average across everything collected so far
+sql
+SELECT DISTINCT fetched_at FROM weather_log LIMIT 5;
+-- confirms no duplicate timestamps snuck in from a double cron entry (Day 68's warning)
+
+**Grouping by time of day — the one genuinely new trick**
+
+sql
+SELECT strftime('%H', fetched_at) AS hour, AVG(temperature_c) AS avg_temp, COUNT(*) AS readings
+FROM weather_log
+GROUP BY hour
+ORDER BY hour;
+-- 08 | 27.9 | 4
+-- 09 | 28.6 | 4
+-- 10 | 29.8 | 4
+-- ...
+-- average temperature per hour of day, and how many readings landed in each
+sql
+-- HAVING to filter grouped results, Day 46
+SELECT strftime('%H', fetched_at) AS hour, AVG(temperature_c) AS avg_temp
+FROM weather_log
+GROUP BY hour
+HAVING AVG(temperature_c) > 29;
+-- only the hours that ran genuinely hot on average
+
+**From Python, same queries, on the VM or pulled locally**
+
+python
+import sqlite3
+
+conn = sqlite3.connect("weather.db")
+cursor = conn.cursor()
+
+cursor.execute("SELECT COUNT(*), AVG(temperature_c) FROM weather_log")
+count, avg_temp = cursor.fetchone()
+print(f"{count} readings logged, average temp {avg_temp:.1f}°C")
+
+conn.close()
+
