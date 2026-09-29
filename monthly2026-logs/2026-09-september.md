@@ -1632,4 +1632,13 @@ journalctl -u cron --since "10 minutes ago"
 
 **Real-world use: Nearly every "works when I run it, fails under cron" bug is one of the three above: a missing venv, a relative path resolving against the wrong directory, or output going nowhere. Testing with * * * * * first, then relaxing to */15, is the standard way to find those in minutes rather than waiting on a 15-minute schedule. Redirecting output to a log file is what makes Day 67's error handling pay off: an unattended script can only tell you what went wrong if it wrote it down somewhere.**
 
-## September 29 (Day 69) 
+## September 29 (Day 69) Let it run, then query the results — SSH in, open the DB, and use your Week 1 SQL (SELECT, WHERE, GROUP BY) on real data you collected instead of practice tables.
+
+**Definition:**
+
+No new syntax today — the entire point is applying Days 43–46 (`SELECT`, `WHERE`, `ORDER BY`, `GROUP BY`, aggregates) to data your own script actually collected, instead of hand-typed practice rows. A few things worth naming specifically for *this* kind of data:
+
+1. Your `fetched_at column` is stored as `TEXT` (an ISO timestamp string) — SQLite doesn't have a dedicated datetime type, so filtering/sorting by it works because ISO 8601 timestamps sort correctly as plain strings (earlier dates are lexicographically smaller).
+2. `AVG()`, `MAX()`, `MIN()` on `temperature_c`/`wind_speed_kmh` now answer real questions ("what was the hottest reading logged today") instead of made-up ones.
+3. `strftime('%H', fetched_at)` — a SQLite function that extracts part of a timestamp string (here, the hour) so you can group by time-of-day, not just by exact timestamp.
+
