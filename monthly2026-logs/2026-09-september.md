@@ -1510,7 +1510,7 @@ python
 4. "Don't let it crash silently" cuts both ways: an uncaught exception crashes loudly (a traceback) but stops the script; a bare `except: pass` fails silently (no traceback, no log, nothing) — the correct middle ground is catching it, logging something specific, and moving on.
 
 **Worked examples:**
-# main.py — same structure as Day 66, now with real error handling
+` main.py — same structure as Day 66, now with real error handling`
 import requests
 import sqlite3
 from fetch import fetch_weather
@@ -1582,4 +1582,11 @@ except:
 
 **REAL-WORLD USE: This is exactly the difference between a script you can trust to run unattended (Day 68's cron job is coming) and one that silently stops working for days before anyone notices — a monitoring script that fails quietly is arguably worse than no script at all, since it creates false confidence that data is being collected when it isn't. Catching specific exception types rather than a bare except: is what lets you eventually log why a run failed (timeout vs. bad data vs. DB issue) instead of just "something happened," which matters enormously once this is running unattended and you're debugging from log output alone, days later.**
 
-## September 28 (Day 68) 
+## September 28 (Day 68) Automate it — set up a cron job (Day 24 skill) to run the script on a schedule (every 15–30 min) so data accumulates without you manually triggering it.
+
+**Definition:**
+1. `crontab -e` and the five-field syntax are exactly Day 30's. What's new today is that cron runs your script in a **stripped-down environment**, which breaks scripts that work fine by hand.
+2. **Cron doesn't activate your venv**. `source env/bin/activate` never happens, so call the venv's Python directly by absolute path: `/home/ubuntu/capstone/env/bin/python3`. Without that, `import requests` fails under cron even though it works in your SSH session.
+3. **Cron's working directory is your home folder, not your project folder**. Your `DB_PATH = "weather.db"` is a relative path, so cron would silently create a second, separate `weather.db` in `/home/ubuntu`. Fix it by running `cd /home/ubuntu/capstone &&` first.
+4. **Cron has no terminal**, so your print() output goes nowhere unless you redirect it. Day 18's >> and 2>&1 (send errors to the same place as normal output) capture it in a log file. Without that, Day 67's error messages would vanish.
+
