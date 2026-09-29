@@ -1590,3 +1590,42 @@ except:
 3. **Cron's working directory is your home folder, not your project folder**. Your `DB_PATH = "weather.db"` is a relative path, so cron would silently create a second, separate `weather.db` in `/home/ubuntu`. Fix it by running `cd /home/ubuntu/capstone &&` first.
 4. **Cron has no terminal**, so your print() output goes nowhere unless you redirect it. Day 18's >> and 2>&1 (send errors to the same place as normal output) capture it in a log file. Without that, Day 67's error messages would vanish.
 
+**Worked examples:**
+
+**Confirm cron is running (Day 48)**
+
+bash
+systemctl status cron
+`      Active: active (running)`
+
+**Test with a one-minute schedule first**
+
+bash
+crontab -e
+* * * * * cd /home/ubuntu/capstone && /home/ubuntu/capstone/env/bin/python3 main.py >> /home/ubuntu/capstone/cron.log 2>&1
+
+**Wait 3 to 4 minutes, then check:**
+
+bash
+cat /home/ubuntu/capstone/cron.log
+` Logged: {'fetched_at': '2026-09-28T09:01:01.114', 'temperature_c': 28.1, ...}`
+` Logged: {'fetched_at': '2026-09-28T09:02:01.120', 'temperature_c': 28.1, ...}`
+bash
+sqlite3 /home/ubuntu/capstone/weather.db "SELECT COUNT(*) FROM weather_log;"
+` count should be climbing by one per minute`
+
+**Once it works, switch to the real schedule**
+
+*/15 * * * * cd /home/ubuntu/capstone && /home/ubuntu/capstone/env/bin/python3 main.py >> /home/ubuntu/capstone/cron.log 2>&1
+bash
+crontab -l
+` confirms only the */15 line remains, not both`
+
+**If nothing shows up, check whether cron even tried (Day 49)**
+
+bash
+journalctl -u cron --since "10 minutes ago"
+` Sep 28 09:15:01 myserver CRON[2210]: (ubuntu) CMD (cd /home/ubuntu/capstone && ...)`
+` a CMD line means cron launched it; empty cron.log after that means the script itself failed`
+
+**Timestamps note:** `datetime.now()` uses the VM's clock, which is almost certainly UTC. Your rows will be UTC, not local time. Fine for a log, but worth knowing when you read them.
