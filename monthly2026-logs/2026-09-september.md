@@ -1708,3 +1708,6 @@ print(f"{count} readings logged, average temp {avg_temp:.1f}°C")
 
 conn.close()
 
+**Real-world use: This is the actual moment a capstone stops being a syntax exercise and becomes a real dataset you can ask real questions of — "what time of day runs hottest," "did any reading look like an outlier," "is the script actually producing distinct data or somehow repeating itself" are exactly the kinds of questions a monitoring dashboard or alerting system answers with these same GROUP BY/aggregate patterns, just at larger scale. Checking for accidental duplicate timestamps here is also a legitimately useful habit — it's the kind of thing that silently signals a cron misconfiguration (Day 68's warning about two schedule lines) before you'd otherwise notice.**
+
+## September 30 (Day 70)
