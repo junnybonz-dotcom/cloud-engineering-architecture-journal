@@ -1629,3 +1629,7 @@ journalctl -u cron --since "10 minutes ago"
 ` a CMD line means cron launched it; empty cron.log after that means the script itself failed`
 
 **Timestamps note:** `datetime.now()` uses the VM's clock, which is almost certainly UTC. Your rows will be UTC, not local time. Fine for a log, but worth knowing when you read them.
+
+**Real-world use: Nearly every "works when I run it, fails under cron" bug is one of the three above: a missing venv, a relative path resolving against the wrong directory, or output going nowhere. Testing with * * * * * first, then relaxing to */15, is the standard way to find those in minutes rather than waiting on a 15-minute schedule. Redirecting output to a log file is what makes Day 67's error handling pay off: an unattended script can only tell you what went wrong if it wrote it down somewhere.**
+
+## September 29 (Day 69) 
