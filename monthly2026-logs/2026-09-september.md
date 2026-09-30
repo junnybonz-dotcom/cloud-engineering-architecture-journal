@@ -1710,4 +1710,17 @@ conn.close()
 
 **Real-world use: This is the actual moment a capstone stops being a syntax exercise and becomes a real dataset you can ask real questions of — "what time of day runs hottest," "did any reading look like an outlier," "is the script actually producing distinct data or somehow repeating itself" are exactly the kinds of questions a monitoring dashboard or alerting system answers with these same GROUP BY/aggregate patterns, just at larger scale. Checking for accidental duplicate timestamps here is also a legitimately useful habit — it's the kind of thing that silently signals a cron misconfiguration (Day 68's warning about two schedule lines) before you'd otherwise notice.**
 
-## September 30 (Day 70)
+## September 30 (Day 70) Document + push — README covering what it does, the schema, how to run it, and a couple sample queries with real output. Push to GitHub. This is also month-end review: skim back over September's four weeks before October starts.
+
+Today closes the loop on Week 4's capstone with the same documentation discipline as Days 32, 40, and 61 — except this time the README is describing a genuinely complete pipeline: an internet-facing VM, running a scheduled script, hitting a live API, writing to a real database, queryable with real SQL. A good README for something this size covers:
+
+1. **What it does** — one or two sentences, plain language.
+2. **Architecture** — the actual path data takes (API → Python → SQLite → cron).
+3. **Schema** — the table definition, copy-pasted from your CREATE TABLE.
+4. **How to run it** — the exact commands, from a clean checkout.
+5. **Sample queries + real output** — proof it works, not just a claim that it does.
+6. **What broke** — pulled from your actual Day 63–69 error log entries, not invented ones.
+
+here is the link: https://https%3A%2F%2Fgithub.com%2Fjunnybonz-dotcom%2Fweather-logger-capstone@github.com/junnybonz-dotcom/weather-logger-capstone
+
+GOODBYE SEPTEMBER!!
