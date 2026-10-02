@@ -130,3 +130,29 @@ def find_constant(target):
 
 **Real-world use: Nearly every cloud architecture decision in Week 1 comes down to this one question first: "is this data a whole discrete thing I read/write as a unit, or do I need fast in-place edits to small pieces of it?" Logs, backups, user uploads, and your Day 70 capstone's README/screenshots are object-storage shaped. A database's underlying files, or a VM's own root filesystem, are block-storage shaped — which is exactly why your Day 55 VM has a block storage volume as its root disk, even though it's writing weather.db (itself just a file on that block device).                                                                                      Big-O intuition is what separates "this script works on my 100-row test table" from "this script still works when the table has 10 million rows" — a hidden O(n) scan inside a loop that itself runs n times becomes O(n²), which is the single most common reason code that was fast in testing becomes painfully slow in production. Recognizing "I'm checking membership in a list repeatedly" as a signal to reach for a set/dict instead is one of the highest-value habits in writing code that scales.**
 
+## October 2 (Day 72) Object storage deep dive — buckets/keys, why it's built for static assets, backups, media; durability/scalability tradeoffs. +15 min: why a linear scan through a list is O(n) — walk through it mentally with a growing list.
+
+**Definition:**
+
+**Buckets & keys, more precisely**
+
+* A **bucket** is the top-level container — globally unique name (on AWS S3, bucket names are unique across *all* AWS accounts, not just yours). Everything you store goes inside one.
+* A **key** is the full string identifying an object inside a bucket — `photos/2026/vacation.jpg`. The `/` characters *look* like folders in the console, but the bucket is actually flat — there's no real directory structure underneath, just keys that happen to contain slashes.
+* An object = key + the data itself + metadata (content type, size, last-modified, custom tags you set).
+
+**Why it's built for static assets, backups, media**
+
+* These workloads share a pattern: **write once (or rarely), read many times, whole-object access**. You don't need to tweak byte 4000 of a photo — you fetch the whole thing or you don't.
+* Object storage trades away fine-grained in-place editing (block storage's strength) for massive horizontal scale and simplicity — exactly the right trade for files that are read far more than they're modified.
+
+**Durability vs. availability — the tradeoff distinction that matters**
+
+* **Durability** — the probability your data *still exists*, unharmed, over time. Commonly advertised as "11 nines" (99.999999999%) — meaning the odds of losing a given object in a year are vanishingly small. Achieved by automatically replicating every object across multiple physically separate data centers (often multiple AZs from Day 53).
+* **Availability** — the probability you can successfully access it right now. Typically "only" 99.9%–99.99% — because a network blip or a brief service issue can make data temporarily unreachable even though it's perfectly intact.
+* These are different numbers on purpose: your data can be 100% safe and still occasionally fail to answer a request for a few seconds.
+
+**Scalability tradeoff**
+
+* Object storage scales near-infinitely with no capacity planning on your part — you don't provision "how much storage" up front like you would with a block volume. The tradeoff: higher latency per request (it's an HTTP call, not a raw disk read) and no partial-file edits — both direct consequences of the same design that makes it scale so well.
+
+
