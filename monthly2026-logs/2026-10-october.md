@@ -155,4 +155,67 @@ def find_constant(target):
 
 * Object storage scales near-infinitely with no capacity planning on your part — you don't provision "how much storage" up front like you would with a block volume. The tradeoff: higher latency per request (it's an HTTP call, not a raw disk read) and no partial-file edits — both direct consequences of the same design that makes it scale so well.
 
+**Worked examples**
 
+**Keys that look like folders, but aren't**
+
+Bucket: my-app-assets
+
+Keys:
+  photos/2026/vacation.jpg
+  photos/2026/beach.jpg
+  backups/weather-db/2026-10-01.sql
+
+` Listing "photos/2026/" in the console LOOKS like browsing a folder,`
+` but under the hood this is really:`
+`   "give me every key that STARTS WITH the string 'photos/2026/'"`
+` — a prefix search, not a real directory traversal.`
+
+**A backup workflow — the exact shape Day 70's capstone could grow into**
+
+`bash`
+` on your VM, dump the weather.db and upload it as an objec`
+sqlite3 weather.db ".backup weather_backup_$(date +%Y%m%d).db"
+
+` conceptually (AWS CLI, once configured):`
+aws s3 cp weather_backup_20261002.db s3://my-weather-backups/
+
+` now the backup is durable across multiple data centers,`
+` independent of whether the VM itself survives`
+
+**Durability math, made concrete**
+
+11 nines (99.999999999%) durability on 10,000,000 stored objects:
+  → expected loss: roughly 1 object every 10,000 years
+
+Compare: a single disk on your laptop has no such guarantee —
+  a drive failure can lose everything on it at once, with no
+  automatic replication happening behind the scenes.
+
+**Why a linear scan is O(n) — walking through it mentally**
+
+`python`
+hostnames = ["web-01"]
+` find "web-01": 1 check`
+
+hostnames = ["web-01", "web-02", "web-03"]
+` find "web-03": up to 3 checks`
+
+hostnames = ["web-01", "web-02", ..., "web-100"]
+` find "web-100": up to 100 checks`
+
+hostnames = [... 1,000,000 items ...]
+` find the last one: up to 1,000,000 checks`
+`python`
+def find_linear(hostnames, target):
+    checks = 0
+    for host in hostnames:
+        checks += 1
+        if host == target:
+            return checks
+    return checks
+
+print(find_linear(["a","b","c","d","e"], "e"))
+` 5 — had to check every single one, worst case`
+
+`The list length and the worst-case check count grow in lockstep, one-to-one — that direct proportionality is exactly what O(n) means. Nothing about the code changes as the list grows; only the number of times the loop body runs does.`
