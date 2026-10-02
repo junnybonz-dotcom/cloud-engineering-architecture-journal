@@ -79,3 +79,52 @@ Good for	backups, images, logs, static files, huge archives	a VM's root disk, da
 * `O(n)` ("linear time") — the number of operations grows directly proportional to the input size `n`. Double the input, roughly double the work.
 * The "O" is shorthand for "order of" — it describes the *shape* of the growth curve, not an exact count.
 
+**Worked examples:**
+**Object vs. block, concretely**
+
+Object storage (e.g. S3):
+  PUT /my-bucket/photos/vacation.jpg   <- upload the whole file
+  GET /my-bucket/photos/vacation.jpg   <- download the whole file
+  ` to "edit" it: upload a new version under the same key, replacing it entirely`
+
+Block storage (e.g. an EBS volume attached to your Day 55 VM):
+  /dev/xvdf   <- the raw block device
+  mkfs.ext4 /dev/xvdf   <- format it with a filesystem
+  mount /dev/xvdf /data
+  ` now it behaves like any normal disk — echo "x" >> /data/log.txt`
+  ` appends ONE line, without rewriting the whole file`
+
+**Picking one for a real scenario**
+
+Storing user-uploaded profile pictures for a web app:
+  → Object storage. Each picture is a discrete file, read far more often
+    than written, and doesn't need in-place byte-level edits.
+
+Storing the actual database files for your Day 65 weather_log:
+  → Block storage. A database constantly modifies small pieces of its
+    files (a single row update), and needs fast, low-latency random access —
+    exactly what block storage is built for.
+
+**Big-O — a hashmap lookup vs. a linear scan**
+
+`python`
+` O(n) — linear scan: has to check hostnames one by one, worst case ALL of them`
+hostnames = ["web-01", "web-02", "db-primary", "db-replica", "cache-01"]
+
+def find_linear(target):
+    for host in hostnames:          ` Day 3's for loop`
+        if host == target:
+            return True
+    return False
+` 5 hostnames → up to 5 checks. 5 million hostnames → up to 5 million checks.`
+`python`
+` O(1) — hashmap (dict) lookup: computes where to look directly, doesn't scan`
+hostnames_set = {"web-01", "web-02", "db-primary", "db-replica", "cache-01"}
+
+def find_constant(target):
+    return target in hostnames_set   ` Day 6's dict, used as a lookup table`
+` 5 entries or 5 million entries — roughly the same number of operations either way`
+`Why: a list is checked one item at a time (Day 3's for loop, literally).`
+`A dict/set computes a hash of the key and jumps straight to where it`
+`would be stored — it doesn't need to look at the other items at all.`
+
