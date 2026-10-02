@@ -38,3 +38,44 @@
 * **AWS Access Denied Errors:** `boto3` calls threw authentication exceptions. Solved by configuring AWS credentials in `~/.aws/credentials` and swapping root keys with a scoped, read-only IAM policy.
 * **Memory Redo Blocks:** Got stuck during the cold Capstone rebuild while wiring Python's `sqlite3` to `requests`. Solved by stepping back to map out the data pipeline schema on paper before writing code.
 * **Handling Expired SDK Tokens:** Handled API failures by wrapping `boto3` connection blocks in `try/except ClientError` traps to log missing or invalid credentials cleanly.
+
+# Everday Stuff like documentation on everything tbh 
+
+## October 1 (Day 71) Storage fundamentals — what "storage" means at the infrastructure level, object vs block storage defined side by side (how each is addressed, mutability, typical size). +15 min: what "time complexity" even measures, O(1) vs O(n) as concepts.
+
+**Definition:**
+
+**Cloud storage — what "storage" means at the infrastructure level**
+
+* At the infrastructure level, "storage" is just: where do bytes physically live, and what's the *interface* for reading/writing them. Different interfaces suit different problems — that's the whole reason object and block storage both exist instead of one universal type.
+
+**Object storage**
+
+* Stores data as discrete, whole **objects** (a file, a blob), each with a unique key/identifier, inside a **bucket** (a flat container — no real folder hierarchy, even though consoles fake one with `/` in key names).
+* **Addressed by key**, over HTTP — you ask for bucket/path/to/file.jpg and get the whole object back. There's no "open this file and edit byte 400" — you replace the *entire* object to change it.
+* **Immutable in practice:** an update is really "upload a new object with the same key," not an in-place edit.
+* Typical size: anywhere from a few KB to many GB/TB per object — scales to enormous volumes (petabytes) with no practical ceiling. AWS S3, Azure Blob Storage, GCP Cloud Storage.
+
+**Block storage**
+
+* Stores data as fixed-size **blocks**, each with a raw numeric address, attached to a machine like a regular hard disk.
+* **Addressed by block number**, at a much lower level than object storage — the OS puts a filesystem (ext4, NTFS) on top, and *that's* what gives you folders/files. The storage layer itself has no concept of "files."
+* **Mutable** — you can modify a tiny piece in place (change block #4821) without touching anything else, exactly like editing a few bytes in the middle of a file on your laptop's disk.
+* Typical size: provisioned in GB/TB chunks, attached to one VM at a time (usually) — AWS EBS, Azure Managed Disks, GCP Persistent Disks.
+
+**Side by side**
+
+|	Object storage	Block storage
+Addressed by	key (string)	block number
+Unit	whole object	fixed-size block
+Mutability	replace the whole object	edit in place
+Access	HTTP API	attached like a disk, needs a filesystem
+Good for	backups, images, logs, static files, huge archives	a VM's root disk, databases needing fast random read/write |
+
+**Big-O intuition — what "time complexity" measures**
+
+* Time complexity isn't a stopwatch measurement — it's a description of **how the number of operations grows as the input grows**, independent of hardware speed.
+* `O(1)` ("constant time") — the number of operations stays the same no matter how big the input is.
+* `O(n)` ("linear time") — the number of operations grows directly proportional to the input size `n`. Double the input, roughly double the work.
+* The "O" is shorthand for "order of" — it describes the *shape* of the growth curve, not an exact count.
+
