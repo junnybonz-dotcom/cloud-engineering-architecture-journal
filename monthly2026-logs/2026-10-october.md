@@ -219,3 +219,6 @@ print(find_linear(["a","b","c","d","e"], "e"))
 ` 5 — had to check every single one, worst case`
 
 `The list length and the worst-case check count grow in lockstep, one-to-one — that direct proportionality is exactly what O(n) means. Nothing about the code changes as the list grows; only the number of times the loop body runs does.`
+
+**REAL-WORLD USE: Almost every real backup strategy — database dumps, config snapshots, log archives — ends up in object storage specifically because of the durability/availability split: you want the data to survive catastrophically (11 nines), while tolerating the occasional brief unavailability, since backups aren't usually read under time pressure. Static assets for a website (images, CSS, downloadable files) live here for the same reason — read constantly, written rarely, no need for in-place edits, and the near-infinite scale means you never think about running out of space the way you would provisioning a block volume.                                                                                       Recognizing O(n) by eye — "this loop's work count depends directly on the input size" — is the single most common thing to spot in your own code before it becomes a real performance problem, especially the moment an O(n) scan ends up nested inside another loop, which is tomorrow's natural next question.**
+
