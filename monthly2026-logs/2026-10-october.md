@@ -222,3 +222,32 @@ print(find_linear(["a","b","c","d","e"], "e"))
 
 **REAL-WORLD USE: Almost every real backup strategy — database dumps, config snapshots, log archives — ends up in object storage specifically because of the durability/availability split: you want the data to survive catastrophically (11 nines), while tolerating the occasional brief unavailability, since backups aren't usually read under time pressure. Static assets for a website (images, CSS, downloadable files) live here for the same reason — read constantly, written rarely, no need for in-place edits, and the near-infinite scale means you never think about running out of space the way you would provisioning a block volume.                                                                                       Recognizing O(n) by eye — "this loop's work count depends directly on the input size" — is the single most common thing to spot in your own code before it becomes a real performance problem, especially the moment an O(n) scan ends up nested inside another loop, which is tomorrow's natural next question.**
 
+## October 3 (Day 73) Block storage deep dive — how it attaches to a VM like a hard drive, why databases/OS volumes want it, IOPS and low-latency reads/writes. +15 min: hashmap intuition — why lookup by key skips the scan entirely, O(1) on average.
+
+**Definition**
+
+**How block storage attaches to a VM**
+
+* A block volume (AWS EBS, Azure Managed Disk, GCP Persistent Disk) is provisioned separately from the VM, then **attached** to it over the provider's internal network — appearing to the OS as a raw device, like `/dev/xvdf` or `/dev/sdb`.
+* The OS doesn't understand "files" at this layer — you format it with a filesystem (`mkfs.ext4`, from Day 72's mention) and `mount` it before it behaves like a normal disk with folders and files.
+* It's **detachable and reattachable** — you can unmount a volume from one VM and attach it to another, carrying its data with it, something object storage doesn't need (since it's never "attached" to anything — it's accessed over HTTP, not mounted).
+* A VM's **root volume** (where the OS itself lives) is almost always block storage — this is literally what your Day 55 Ubuntu instance has been running on since launch, even though you never had to think about it.
+
+**Why databases and OS volumes specifically want this**
+
+* A database constantly does small, random reads/writes — update one row, read one index entry, append one log line — scattered across the file, not sequentially. Block storage is built for exactly this: address block #48213 directly, read/write just that piece, done.
+* An OS volume needs the same thing — modifying one config file, writing one log line, updating one package — all small, in-place, frequent operations.
+* Contrast with object storage: there, "modifying one row" would mean re-uploading an entire multi-GB database file for a one-row change — completely impractical.
+
+**IOPS and latency**
+
+* **IOPS** (Input/Output Operations Per Second) — how many individual read/write operations a volume can handle per second. This is the number that matters for databases, not raw throughput (MB/s) — a database does *many small* operations, not a few huge ones.
+* **Latency** — how long a single operation takes to complete. Block storage is attached over a low-latency internal connection (sometimes physically local to the VM), versus object storage's HTTP round-trip, which is inherently slower per-request even though it scales better in aggregate.
+* Provider tiers let you provision IOPS directly (e.g. AWS `io2` volumes) when a workload — like a busy database — needs guaranteed, consistent low-latency performance rather than best-effort.
+
+**Hashmap intuition — why lookup by key skips the scan**
+
+* A dict doesn't search for your key — it **computes** where the value should be. `hash(key)` turns the key into a number, and that number maps (roughly) directly to a storage slot.
+* Compare to yesterday's linear scan, which checks items one at a time until it finds a match — a hashmap instead jumps straight to roughly the right spot, checks it, and is usually done. No matter how many other keys are in the dict, that computation takes the same amount of work.
+* **"On average"** matters: in rare cases two different keys hash to the same slot (a **collision**), requiring a little extra work to resolve — so O(1) here is an average/typical case, not an absolute guarantee like it would be for, say, accessing a fixed array index.
+
