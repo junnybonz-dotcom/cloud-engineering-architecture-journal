@@ -251,3 +251,65 @@ print(find_linear(["a","b","c","d","e"], "e"))
 * Compare to yesterday's linear scan, which checks items one at a time until it finds a match — a hashmap instead jumps straight to roughly the right spot, checks it, and is usually done. No matter how many other keys are in the dict, that computation takes the same amount of work.
 * **"On average"** matters: in rare cases two different keys hash to the same slot (a **collision**), requiring a little extra work to resolve — so O(1) here is an average/typical case, not an absolute guarantee like it would be for, say, accessing a fixed array index.
 
+**Worked examples**
+
+**Attaching a block volume (conceptual — AWS naming)**
+
+`bash`
+` after creating and attaching an EBS volume via the console to your VM:`
+lsblk
+` NAME    SIZE`
+` xvda    8G    <- root volume, already mounted`
+` xvdf    10G   <- new volume, attached but not yet usable`
+
+sudo mkfs.ext4 /dev/xvdf
+sudo mkdir /data
+sudo mount /dev/xvdf /data
+
+df -h /data
+` Filesystem  Size  Used Avail Use% Mounted on`
+` /dev/xvdf    10G   24K  9.5G   1% /data`
+`bash`
+` now it behaves exactly like any other disk — Day 1-8 commands, unchanged`
+touch /data/test.txt
+echo "hello" >> /data/test.txt
+cat /data/test.txt
+` hello`
+
+**Why this matters for your Day 65 weather.db, concretely**
+
+weather.db sits on the VM's root block volume right now.` `Every INSERT
+is a small, random write to a specific part of that file — exactly
+the access pattern block storage is built for.` `If weather.db were
+somehow stored in S3 instead, every single row insert would require
+re-uploading the entire database file — the pipeline from Week 4
+simply wouldn't work that way.`
+
+**Hashmap intuition, step by step**
+
+`python`
+hostnames = {"web-01": "10.0.0.1", "web-02": "10.0.0.2", "db-primary": "10.0.0.3"}
+
+` what Python roughly does internally when you look something up:`
+key = "db-primary"
+slot = hash(key) % 8   ` conceptually — real dicts resize/rehash, this is simplified`
+` jumps directly to that slot, checks it, done`
+
+print(hostnames["db-primary"])
+` 10.0.0.3`
+` no scanning through "web-01" and "web-02" first — straight to the answer`
+`python`
+import time
+
+big_dict = {i: str(i) for i in range(1_000_000)}
+
+start = time.time()
+999_999 in big_dict
+print(f"1M entries: {time.time() - start:.8f}s")
+
+small_dict = {i: str(i) for i in range(100)}
+start = time.time()
+99 in small_dict
+print(f"100 entries: {time.time() - start:.8f}s")
+` both roughly the same tiny number — size barely matters, unlike yesterday's list scan`
+
