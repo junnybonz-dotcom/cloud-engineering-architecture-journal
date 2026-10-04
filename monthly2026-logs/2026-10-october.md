@@ -314,3 +314,36 @@ print(f"100 entries: {time.time() - start:.8f}s")
 ` both roughly the same tiny number — size barely matters, unlike yesterday's list scan`
 
 **Real-world use: Every cloud database service — a managed Postgres/MySQL instance, your own self-hosted database on a VM — ultimately sits on provisioned block storage, and IOPS is one of the first numbers a real production database gets sized against, because an underpowered volume (too few IOPS) becomes the bottleneck long before CPU or RAM does, especially under heavy write load. This is also exactly why "lift your database onto object storage to save money" is a design mistake you'll see proposed by people who haven't internalized this week's distinction — the access pattern, not just the price per GB, determines which one actually works.                                                                                     The hashmap/O(1) lookup is one of the most consequential small decisions in everyday code — anywhere you find yourself writing "is X in this list?" repeatedly inside a loop, switching that list to a set or dict is often the single highest-leverage performance fix available, turning an accidental O(n²) script into something that stays fast as data grows.**
+
+## October 4 (Day 74) Decision framework — given an app's needs (random access + speed vs scale + HTTP access), which storage type fits and why. +15 min: side-by-side — searching a Python list vs a dict for the same value, why the dict wins as data grows.
+
+**Definition**
+
+**The decision framework**
+
+Three questions, asked in order, settle most storage choices:
+
+1. **Does this data need random, in-place edits to small pieces of it — or do you always read/write it as a whole unit?**
+ → Small in-place edits: **block storage.** Always-whole: **object storage.**
+2. **Does it need to be attached to one specific machine, or accessed from anywhere over HTTP?**
+ → Attached to a machine: **block.** Accessed broadly, possibly by many services/users at once: **object.**
+3. **Does raw speed/low-latency matter more than near-infinite scale — or the reverse?**
+ → Speed-critical, bounded size (a database, an OS volume): **block.** Scale-critical, less latency-sensitive (backups, media, logs, archives): **object.**
+
+`If the answers conflict (rare, but possible — e.g. "I need both speed AND huge scale"), that's usually a sign the real answer is "use both": block storage for the active working set, object storage for everything older/archived — exactly the backup pattern from Day 72.`
+
+**A compact way to hold this**
+
+          Random, small edits          Whole-object, HTTP access
+Speed-    BLOCK STORAGE                 —
+critical  (database, OS volume)
+
+Scale-    —                             OBJECT STORAGE
+critical                                (backups, media, logs, archives)
+
+**List vs. dict — why the dict wins as data grows**
+
+* A list search (`in`, or a manual loop) is `O(n)` — Day 72's linear scan, checking items one at a time.
+* A dict lookup (`in`, `.get()`, `[key]`) is `O(1)` on average — Day 73's hash-based jump straight to the slot.
+* The gap doesn't matter at small `n` (10 items: both are instant to a human). It becomes the entire story at large `n` — this is the actual lesson of Big-O: not "which is faster right now," but "which one's cost grows."
+
