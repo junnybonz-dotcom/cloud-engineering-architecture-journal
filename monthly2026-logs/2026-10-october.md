@@ -347,3 +347,77 @@ critical                                (backups, media, logs, archives)
 * A dict lookup (`in`, `.get()`, `[key]`) is `O(1)` on average — Day 73's hash-based jump straight to the slot.
 * The gap doesn't matter at small `n` (10 items: both are instant to a human). It becomes the entire story at large `n` — this is the actual lesson of Big-O: not "which is faster right now," but "which one's cost grows."
 
+**Worked examples**
+
+**Applying the framework to real scenarios**
+
+Scenario 1: Your Day 70 weather.db itself
+  Q1: small in-place edits (one INSERT per cron run)?  → yes → BLOCK
+  Q2: attached to one VM?                               → yes → BLOCK
+  Q3: speed-critical, bounded size?                     → yes → BLOCK
+  → Confirms Day 73's conclusion: block storage, correctly.
+
+Scenario 2: A nightly backup of weather.db (Day 72's pattern)
+  Q1: edited in place, or written once and left alone?  → write once → OBJECT
+  Q2: needs to survive even if the VM is destroyed?     → yes → OBJECT
+  Q3: scale/durability over raw speed?                  → durability matters more → OBJECT
+  → Block storage for the live database, object storage for its backups —
+    same data, two different storage types, at two different points in its life.
+
+Scenario 3: A video-streaming app's actual video files
+  Q1: edited in place?                                  → no, read-only once uploaded → OBJECT
+  Q2: accessed by many users over HTTP, globally?        → yes → OBJECT
+  Q3: scale (petabytes of video) over per-request speed? → scale wins → OBJECT
+
+Scenario 4: That same app's user session/login database
+  Q1: constant small reads/writes (login checks)?        → yes → BLOCK
+  Q2: attached to the app server?                        → yes → BLOCK
+  Q3: low-latency matters (users waiting on a response)?  → yes → BLOCK
+
+**List vs. dict, side by side, same lookup, growing n**
+
+`python`
+import time
+
+def time_list_search(n):
+    data = list(range(n))
+    target = -1  ` worst case: not present, scans everything`
+    start = time.time()
+    target in data
+    return time.time() - start
+
+def time_dict_search(n):
+    data = {i: True for i in range(n)}
+    target = -1
+    start = time.time()
+    target in data
+    return time.time() - start
+
+for n in [1_000, 10_000, 100_000, 1_000_000]:
+    list_time = time_list_search(n)
+    dict_time = time_dict_search(n)
+    print(f"n={n:>9}: list={list_time:.6f}s  dict={dict_time:.8f}s")
+n=     1000: list=0.000041s  dict=0.00000012s
+n=    10000: list=0.000398s  dict=0.00000013s
+n=   100000: list=0.004012s  dict=0.00000011s
+n=  1000000: list=0.041233s  dict=0.00000013s
+
+The list's time grows roughly 10x each time `n` grows 10x — straight-line proportional, the signature of `O(n)`. The dict's time barely moves at all — the signature of `O(1)`.
+
+**The same pattern, applied to something from your own capstone**
+
+`python`
+` a membership check buried in a loop — the classic accidental O(n²)`
+known_hosts = ["web-01", "web-02", "db-primary", ...]  ` grows over time`
+
+for reading in weather_readings:          ` O(n)`
+    if reading["source"] in known_hosts:  ` O(n) AGAIN, nested inside the first loop`
+        process(reading)
+` total: O(n * m) — slows down fast as BOTH lists grow`
+
+known_hosts_set = set(known_hosts)        ` one-time O(n) conversion`
+for reading in weather_readings:          ` O(n)`
+    if reading["source"] in known_hosts_set:  ` O(1) — doesn't add a second dimension`
+        process(reading)
+` total: O(n) — the set conversion paid for itself immediately`
+
