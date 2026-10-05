@@ -447,3 +447,62 @@ for reading in weather_readings:          ` O(n)`
 * Contrast: a plain list also uses `O(n)` space (has to store every item too) — but a dict typically uses *more* memory per item than a list does, because of that extra slack plus the overhead of storing hash values alongside each key.
 * This is the actual tradeoff: you're trading some memory overhead for a large, often decisive, speed advantage — rarely a bad trade, but not a free one.
 
+**Worked examples**
+
+**A concrete 3-tier layout, mapped onto what you've already built**
+
+Web tier:   nginx (Day 58) — could later sit behind a load balancer
+                ↓
+App tier:   a Python app (imagine Flask/FastAPI) handling requests,
+            running business logic
+                ↓
+Data tier:  weather.db / a real managed database — only reachable
+            from the app tier, never directly from the internet
+Security groups, applied per tier (extending Day 54/59):
+
+Web tier SG:   inbound 80/443 from 0.0.0.0/0 (public)
+App tier SG:   inbound from Web tier's SG ONLY (not the internet)
+Data tier SG:  inbound from App tier's SG ONLY (not even the web tier)
+
+A request's actual path:
+Internet → Web tier → App tier → Data tier
+Nothing can skip a layer, by design — not even you, without reconfiguring it.
+
+**Independent scaling, concretely**
+
+Black Friday traffic spike on the web tier:
+  → launch 5 more web servers behind a load balancer
+  → app tier: unchanged (still 2 servers)
+  → data tier: unchanged (still 1 database)
+
+A slow database query under load:
+  → upgrade the data tier's instance size, or add a read replica
+  → web tier: unchanged
+  → app tier: unchanged
+
+**Space complexity, made concrete**
+
+`python`
+import sys
+
+small_list = list(range(1000))
+small_dict = {i: i for i in range(1000)}
+
+print(sys.getsizeof(small_list))
+` ~8056 bytes`
+print(sys.getsizeof(small_dict))
+` ~36960 bytes`
+` same 1000 items — the dict takes noticeably more raw memory`
+python
+` the O(n) space cost, scaling up`
+import sys
+
+for n in [1_000, 10_000, 100_000]:
+    d = {i: i for i in range(n)}
+    l = list(range(n))
+    print(f"n={n:>7}: list={sys.getsizeof(l):>9} bytes   dict={sys.getsizeof(d):>9} bytes")
+n=   1000: list=    8056 bytes   dict=   36960 bytes
+n=  10000: list=   85176 bytes   dict=  294984 bytes
+n= 100000: list=  824456 bytes   dict= 3145944 bytes
+
+`Both grow roughly linearly with n (both are O(n) space) — but the dict's constant factor is noticeably bigger. That extra memory is the literal price of the O(1) lookup speed from Days 73–74.`
