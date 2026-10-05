@@ -422,3 +422,28 @@ for reading in weather_readings:          ` O(n)`
 ` total: O(n) — the set conversion paid for itself immediately`
 
 **Real-world use: This three-question framework is genuinely how real architecture decisions get made day to day — not from memorizing a list of which AWS service to use where, but from reasoning backward from the access pattern the data actually has. Interviewers and real system-design conversations care far more about why you'd pick one over the other for a given workload than whether you can recite service names, which is exactly what today practiced.                                                                                     The list-vs-dict gap is one of the most common real-world performance bugs in production code — a lookup that was fine in testing with 50 rows and becomes the entire bottleneck once a table has 500,000, purely because nobody swapped a list for a set when the data outgrew what a human would ever notice by eye.**
+
+## October 5 (Day 75) 3-tier architecture basics — web/app/db tiers explained, why they're separated (scalability, security, independent scaling). +15 min: space complexity — what "extra memory" a hashmap costs you for that speed.
+
+**Definition**
+
+**3-tier architecture**
+
+* **Web tier** — handles incoming HTTP requests, serves static content, often the first thing a user's request hits (a load balancer + web servers, or a reverse proxy like the nginx you set up Day 58).
+* **App tier** — runs your actual application logic: processes requests, applies business rules, talks to the database, returns a response to the web tier.
+* **Data tier** — the database itself: stores and retrieves persistent data, nothing else. No business logic lives here.
+* Each tier only talks to the tier directly next to it — web talks to app, app talks to data. The web tier never touches the database directly, and the database never talks to the web tier.
+
+**Why they're separated**
+
+* **Scalability** — tiers often need to scale at different rates. A sudden traffic spike might need 10x more web servers, while the database stays exactly the same size — separating them means you scale *only* the tier under load, instead of duplicating everything together.
+* **Security** — the data tier can sit on a private network, completely unreachable from the internet (recall Day 59's security group: SSH scoped to your IP, HTTP open to everyone — a database tier would get *no* public inbound rule at all, only "allow connections from the app tier"). A compromised web server then can't reach the database directly, even if an attacker gets in.
+* **Independent scaling/deployment** — you can redeploy app-tier code without touching the database, patch the database without redeploying app code, and swap technologies within one tier (change web servers, change the app framework) without rewriting the others, as long as the interfaces between tiers stay the same.
+
+**Space complexity — the other half of Big-O**
+
+* Time complexity (`O(1)`, `O(n)`) measures *operations*. **Space complexity** measures *extra memory used*, as a function of input size `n`.
+* A hashmap's `O(1)` lookup speed isn't free — it costs `O(n)` space: the dict has to actually store every key somewhere, plus some empty "slack" slots (dicts intentionally keep extra empty capacity to keep collisions rare and lookups fast).
+* Contrast: a plain list also uses `O(n)` space (has to store every item too) — but a dict typically uses *more* memory per item than a list does, because of that extra slack plus the overhead of storing hash values alongside each key.
+* This is the actual tradeoff: you're trading some memory overhead for a large, often decisive, speed advantage — rarely a bad trade, but not a free one.
+
