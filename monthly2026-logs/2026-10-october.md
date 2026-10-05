@@ -506,3 +506,7 @@ n=  10000: list=   85176 bytes   dict=  294984 bytes
 n= 100000: list=  824456 bytes   dict= 3145944 bytes
 
 `Both grow roughly linearly with n (both are O(n) space) — but the dict's constant factor is noticeably bigger. That extra memory is the literal price of the O(1) lookup speed from Days 73–74.`
+
+**Real-world use: The 3-tier model is the default shape of essentially every real web application you'll ever work on — even "serverless" architectures are usually this same pattern with managed services standing in for each tier. The security argument specifically is what real breach postmortems come back to again and again: a database that's only reachable from the app tier's security group, never from the internet, survives far more attack scenarios than one that's technically "password protected" but still publicly reachable.                                                                                   Space complexity matters most when memory is genuinely constrained — an embedded device, a process handling millions of records at once, a serverless function with a hard memory limit — where O(n) space with a large constant factor (like a dict) can be the thing that actually breaks, even when the time complexity is perfect. In most everyday backend work the speed win dominates and the memory cost is a non-issue, but knowing the tradeoff exists is what lets you reason about it the one time it actually matters.**
+
+## October 6 (Day 76) 
