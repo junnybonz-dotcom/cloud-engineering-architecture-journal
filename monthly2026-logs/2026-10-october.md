@@ -563,3 +563,6 @@ Recipe photos / avatars:
 
 **One subtlety worth drawing explicitly:** the app tier talks to both storage types — it queries the database (block, low-latency) AND makes HTTP calls to object storage (uploading/fetching photos) — these aren't alternatives to each other, they coexist, each handling the piece of data it's actually suited for.
 
+**Real-world use: This is genuinely the exercise real architecture diagrams are for — not decoration, but a forcing function that makes you commit to where every piece of data lives and why, before writing code, the same discipline as Day 62's schema-before-code habit, just one layer up. Drawing security scope per tier on the same diagram (rather than as a separate afterthought) is what real infrastructure-as-code setups do too — the network topology and the security rules are designed together, not bolted on after the app works.**
+
+## October 7 (Day 77)
