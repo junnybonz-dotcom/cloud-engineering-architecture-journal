@@ -509,4 +509,13 @@ n= 100000: list=  824456 bytes   dict= 3145944 bytes
 
 **Real-world use: The 3-tier model is the default shape of essentially every real web application you'll ever work on — even "serverless" architectures are usually this same pattern with managed services standing in for each tier. The security argument specifically is what real breach postmortems come back to again and again: a database that's only reachable from the app tier's security group, never from the internet, survives far more attack scenarios than one that's technically "password protected" but still publicly reachable.                                                                                   Space complexity matters most when memory is genuinely constrained — an embedded device, a process handling millions of records at once, a serverless function with a hard memory limit — where O(n) space with a large constant factor (like a dict) can be the thing that actually breaks, even when the time complexity is perfect. In most everyday backend work the speed win dominates and the memory cost is a non-issue, but knowing the tradeoff exists is what lets you reason about it the one time it actually matters.**
 
-## October 6 (Day 76) 
+## October 6 (Day 76)  Sketch your own 3-tier architecture for a simple app idea — pick something concrete (to-do app, blog), map web tier → app tier → db tier, and decide where object storage (uploads) vs block storage (the database itself) fits in the diagram.
+
+**Definition**
+
+Today has no new concept — it's applying Days 71–75 as one synthesis exercise. The checklist to work through while sketching:
+
+1. **Draw the three tiers** — web, app, data — as boxes, with arrows showing the one-directional flow: `Internet → Web → App → Data`. No arrow should skip a tier.
+2. **For each tier, name what actually runs there** — a web server, your app's backend code, a database engine.
+3. **For every distinct piece of data your app produces, run Day 74's three-question framework** — small in-place edits vs. whole-object, attached-to-a-machine vs. HTTP-accessed, speed-critical vs. scale-critical — and place it as either block or object storage *on the diagram itself*, not as an afterthought.
+4. **Scope security per tier** (Day 75) — note in one line per tier what's allowed to talk to it, and from where.
