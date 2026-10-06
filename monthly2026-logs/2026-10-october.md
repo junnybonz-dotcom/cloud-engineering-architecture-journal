@@ -519,3 +519,47 @@ Today has no new concept — it's applying Days 71–75 as one synthesis exercis
 2. **For each tier, name what actually runs there** — a web server, your app's backend code, a database engine.
 3. **For every distinct piece of data your app produces, run Day 74's three-question framework** — small in-place edits vs. whole-object, attached-to-a-machine vs. HTTP-accessed, speed-critical vs. scale-critical — and place it as either block or object storage *on the diagram itself*, not as an afterthought.
 4. **Scope security per tier** (Day 75) — note in one line per tier what's allowed to talk to it, and from where.
+
+**Worked example (a different app, so yours stays your own — a recipe-sharing app)**
+                     ┌─────────────────────────┐
+  Internet  ──────▶ |       WEB TIER          │
+  (users)            │  nginx / load balancer  │
+                     │  SG: 80/443 from 0.0.0.0/0
+                     └───────────┬─────────────┘
+                                 │
+                                 ▼
+                     ┌─────────────────────────┐
+                     │       APP TIER          │
+                     │  backend (e.g. Flask)   │
+                     │  - handles recipe CRUD  │
+                     │  - handles photo upload │
+                     │  SG: inbound from Web tier SG only
+                     └──────┬──────────┬───────┘
+                            │          │
+              ┌─────────────┘          └─────────────┐
+              ▼                                       ▼
+   ┌─────────────────────┐                 ┌─────────────────────────┐
+   │     DATA TIER        │                 │   OBJECT STORAGE        │
+   │  BLOCK STORAGE        │                 │  (recipe photos, user   │
+   │  (recipes, users,     │                 │   avatars)              │
+   │   ratings — relational │                 │  - whole-file, read-    │
+   │   DB, small random     │                 │    heavy, no in-place   │
+   │   writes)              │                 │    edits                │
+   │  SG: inbound from App  │                 │  - accessed via HTTP    │
+   │  tier SG only          │                 │    from App tier        │
+   └─────────────────────┘                 └─────────────────────────┘
+
+**Why each storage decision, walked through the Day 74 framework:**
+
+Recipes/users/ratings table:
+  Q1: small in-place edits (editing one recipe, adding one rating)? → yes → BLOCK
+  Q2: attached to one machine (the DB server)?                       → yes → BLOCK
+  Q3: speed-critical, bounded size?                                  → yes → BLOCK
+
+Recipe photos / avatars:
+  Q1: edited in place, or uploaded once and read many times?         → whole-file → OBJECT
+  Q2: accessed broadly over HTTP, not tied to one machine?            → yes → OBJECT
+  Q3: scale (thousands of users' photos) over per-request speed?      → scale wins → OBJECT
+
+**One subtlety worth drawing explicitly:** the app tier talks to both storage types — it queries the database (block, low-latency) AND makes HTTP calls to object storage (uploading/fetching photos) — these aren't alternatives to each other, they coexist, each handling the piece of data it's actually suited for.
+
