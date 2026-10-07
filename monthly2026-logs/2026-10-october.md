@@ -595,3 +595,13 @@ OBJECT STORAGE
   roles/policies), not a port rule at all.
 
 The one thing worth double-checking as you do this: confirm your diagram never shows the Web tier with a direct arrow to the Data tier, and never shows the Data tier's security group allowing `0.0.0.0/0` anywhere. If either shows up, that's the mistake Day 75's whole argument was built to prevent.
+
+**Step 2 — explain it out loud, as if to someone who's never seen it**
+
+This is today's actual test. Out loud (or written, if that's easier to do honestly with yourself), walk through your diagram start to finish:
+
+* What happens, step by step, from the moment a user's request leaves their browser to the moment data comes back?
+* At each tier boundary, say *why* that boundary exists — not just "there's a security group here," but what it protects against.
+* For each storage type on the diagram, say why that piece of data landed there and not the other type — reuse Day 74's three questions as the actual words you say, not just as a checklist you silently ran.
+
+If you stumble on a step — can't explain *why*, only *what* — that's the exact spot worth rereading from Days 71–76 before moving on. Narrating out loud surfaces gaps that silently nodding along to your own diagram won't.
