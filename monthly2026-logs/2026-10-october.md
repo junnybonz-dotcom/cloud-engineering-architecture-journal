@@ -615,3 +615,19 @@ Before checking anything below, write out, cold:
 3. Why does a `for` loop checking `if target in my_list` get slower as the list grows, concretely — what is the loop actually doing differently?
 4. Why does `target in my_dict` not get meaningfully slower — what is a dict doing instead of what a list does?
 5. One real example (yours, not a textbook one) from the last week where this distinction would actually change which data structure you'd reach for.
+
+**Check yourself only after attempting all five:**
+
+1. O(1): the amount of work stays the same no matter how big the input is.
+2. O(n): the amount of work grows in direct proportion to the input size —
+   double the input, roughly double the work.
+3. A list has no way to know where a value is except checking items one
+   by one, in order, until it finds a match or reaches the end — more
+   items means more possible checks before that happens.
+4. A dict computes a hash of the key and jumps near-directly to where
+   that key's value would be stored, rather than checking other entries
+   at all — the computation itself doesn't depend on how many other
+   keys exist.
+5. (yours will vary — e.g. "checking if a hostname is already in a
+   growing list of known hosts before processing each new reading,
+   from Day 74's nested-loop example")
