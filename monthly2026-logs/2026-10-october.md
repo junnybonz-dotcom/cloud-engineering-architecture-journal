@@ -570,3 +570,28 @@ Recipe photos / avatars:
 **Today's structure**
 
 No new concept — this is Week 1's close, built entirely around two things you already have: yesterday's sketch, and everything from September Week 3. Three steps, in order.
+
+**Step 1 — layer security groups/ports onto yesterday's diagram**
+
+Go back to Day 76's sketch and add, next to each tier, the actual port-level detail Week 3 (Days 54, 59) covered — not just "App tier SG: inbound from Web tier," but the real specifics:
+
+WEB TIER
+  Inbound:  TCP 80 (HTTP) from 0.0.0.0/0
+            TCP 443 (HTTPS) from 0.0.0.0/0
+            TCP 22 (SSH) from YOUR_IP/32 only   ← Day 56's habit, still applies
+  Outbound: to App tier only, on whatever port your app listens on (e.g. 5000)
+
+APP TIER
+  Inbound:  TCP 5000 (or your app's port) from WEB TIER'S SG only — not 0.0.0.0/0
+  Outbound: to Data tier (e.g. TCP 5432 for Postgres) + to Object storage over HTTPS (443)
+
+DATA TIER
+  Inbound:  TCP 5432 (or your DB's port) from APP TIER'S SG only
+  Outbound: none needed, typically
+
+OBJECT STORAGE
+  Not a "tier" with a security group in the same sense — it's reached over
+  HTTPS from the App tier, authenticated via IAM permissions (Day 53's
+  roles/policies), not a port rule at all.
+
+The one thing worth double-checking as you do this: confirm your diagram never shows the Web tier with a direct arrow to the Data tier, and never shows the Data tier's security group allowing `0.0.0.0/0` anywhere. If either shows up, that's the mistake Day 75's whole argument was built to prevent.
