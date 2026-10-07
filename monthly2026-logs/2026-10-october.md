@@ -605,3 +605,13 @@ This is today's actual test. Out loud (or written, if that's easier to do honest
 * For each storage type on the diagram, say why that piece of data landed there and not the other type — reuse Day 74's three questions as the actual words you say, not just as a checklist you silently ran.
 
 If you stumble on a step — can't explain *why*, only *what* — that's the exact spot worth rereading from Days 71–76 before moving on. Narrating out loud surfaces gaps that silently nodding along to your own diagram won't.
+
+**Step 3 — re-derive O(1) vs O(n) from scratch, no notes**
+
+Before checking anything below, write out, cold:
+
+1. What does `O(1)` mean, in your own words — not the formal definition, just what it means for the work involved.
+2. What does `O(n)` mean, same way.
+3. Why does a `for` loop checking `if target in my_list` get slower as the list grows, concretely — what is the loop actually doing differently?
+4. Why does `target in my_dict` not get meaningfully slower — what is a dict doing instead of what a list does?
+5. One real example (yours, not a textbook one) from the last week where this distinction would actually change which data structure you'd reach for.
