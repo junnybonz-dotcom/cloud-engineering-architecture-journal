@@ -565,4 +565,8 @@ Recipe photos / avatars:
 
 **Real-world use: This is genuinely the exercise real architecture diagrams are for — not decoration, but a forcing function that makes you commit to where every piece of data lives and why, before writing code, the same discipline as Day 62's schema-before-code habit, just one layer up. Drawing security scope per tier on the same diagram (rather than as a separate afterthought) is what real infrastructure-as-code setups do too — the network topology and the security rules are designed together, not bolted on after the app works.**
 
-## October 7 (Day 77)
+## October 7 (Day 77) Review + refine — layer in security groups/ports from Sep Week 3 onto your sketch, label everything, then explain your own diagram out loud as if to someone who's never seen it. Close the week by re-deriving O(1) vs O(n) from scratch without notes.
+
+**Today's structure**
+
+No new concept — this is Week 1's close, built entirely around two things you already have: yesterday's sketch, and everything from September Week 3. Three steps, in order.
