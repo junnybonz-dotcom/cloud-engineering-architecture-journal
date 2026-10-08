@@ -655,3 +655,17 @@ Before checking anything below, write out, cold:
 * **Default deny:** everything is denied unless a policy explicitly allows it, and an explicit deny always wins.
 * **How this relates to security groups (Day 54):** a security group controls whether *network traffic* reaches a resource. IAM controls whether an *API call* is permitted. This is also why Day 77's diagram showed object storage reached via IAM rather than a port rule.
 
+**Worked examples**
+
+**Step 1: create a limited IAM user (never use root keys)**
+
+Console → IAM → Users → Create user → name: study-boto3
+→ Attach policies directly:
+    AmazonS3ReadOnlyAccess
+    AmazonEC2ReadOnlyAccess
+→ Create user → open it → Security credentials tab
+→ Create access key → use case: "Command Line Interface / local code"
+→ copy BOTH values now. The secret is shown once and can't be retrieved later.
+
+`Those two read-only policies match what the week's script needs (listing buckets and VMs). That's least privilege in practice: grant what the job needs, nothing more.`
+
