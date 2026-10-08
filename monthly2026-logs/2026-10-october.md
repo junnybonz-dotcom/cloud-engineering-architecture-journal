@@ -669,3 +669,13 @@ Console → IAM → Users → Create user → name: study-boto3
 
 `Those two read-only policies match what the week's script needs (listing buckets and VMs). That's least privilege in practice: grant what the job needs, nothing more.`
 
+**Step 2: install boto3 in your venv (Day 33/63)**
+
+bash
+cd ~/capstone
+source env/bin/activate
+pip install boto3
+pip list | grep -i boto
+` boto3  1.35.x`
+` botocore ...`
+
