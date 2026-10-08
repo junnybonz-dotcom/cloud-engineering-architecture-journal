@@ -746,3 +746,16 @@ That ARN ending in `user/study-boto3` proves boto3 is acting as your limited use
 }
 
 Read it as: allow the action `s3:ListAllMyBuckets` on any resource. Every policy is Effect + Action + Resource.
+
+**Common failures and what they mean**
+
+NoCredentialsError: Unable to locate credentials
+→ boto3 found nothing: wrong file path, wrong profile name, or env vars not exported.
+
+ClientError: InvalidClientTokenId / SignatureDoesNotMatch
+→ credentials were found but are wrong: a typo, a stray space, or a deactivated key.
+
+ClientError: AccessDenied (on a later call, not this one)
+→ authentication worked, but the policy doesn't allow that action.
+
+This is the same split as Day 56's SSH failures: "can't find or verify who you are" versus "you're verified, but not permitted."
