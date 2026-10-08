@@ -730,3 +730,19 @@ python3 check_auth.py
 ` Authenticated as: arn:aws:iam::123456789012:user/study-boto3`
 
 That ARN ending in `user/study-boto3` proves boto3 is acting as your limited user, not root.
+
+**What a policy looks like**
+
+`json`
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:ListAllMyBuckets"],
+      "Resource": "*"
+    }
+  ]
+}
+
+Read it as: allow the action `s3:ListAllMyBuckets` on any resource. Every policy is Effect + Action + Resource.
