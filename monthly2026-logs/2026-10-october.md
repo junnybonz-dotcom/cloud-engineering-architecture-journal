@@ -759,3 +759,5 @@ ClientError: AccessDenied (on a later call, not this one)
 → authentication worked, but the policy doesn't allow that action.
 
 This is the same split as Day 56's SSH failures: "can't find or verify who you are" versus "you're verified, but not permitted."
+
+**Real-world use: Hardcoding keys in a script is how real credentials leak. People push them to GitHub and get compromised within minutes, because bots scan public repos for AWS key patterns. Keeping keys in ~/.aws/credentials (outside your repo, mode 600) and using a limited IAM user instead of root is the baseline habit. The same reasoning is why on an EC2 instance the real-world answer is an IAM role rather than keys on disk: there is nothing stored to steal, because the credentials are temporary and issued automatically. That's coming later this week.                                                                                     get_caller_identity() is also worth keeping in your toolkit. When something is denied and you can't tell why, the first question is "which identity is this code actually running as?", and that call answers it directly.**
