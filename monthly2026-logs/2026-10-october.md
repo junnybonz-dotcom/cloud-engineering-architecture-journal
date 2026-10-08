@@ -710,3 +710,23 @@ export AWS_DEFAULT_REGION=us-east-1
 
 These last only for the current shell session unless you put them in `.bashrc`, and you shouldn't put secrets there casually.
 
+**Step 4: confirm you can authenticate**
+
+`python`
+` check_auth.py`
+import boto3
+from botocore.exceptions import ClientError, NoCredentialsError
+
+try:
+    sts = boto3.client("sts")
+    identity = sts.get_caller_identity()
+    print("Authenticated as:", identity["Arn"])
+except NoCredentialsError:
+    print("boto3 couldn't find any credentials.")
+except ClientError as e:
+    print(f"AWS rejected the request: {e}")
+`bash`
+python3 check_auth.py
+` Authenticated as: arn:aws:iam::123456789012:user/study-boto3`
+
+That ARN ending in `user/study-boto3` proves boto3 is acting as your limited user, not root.
