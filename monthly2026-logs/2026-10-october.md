@@ -671,11 +671,26 @@ Console → IAM → Users → Create user → name: study-boto3
 
 **Step 2: install boto3 in your venv (Day 33/63)**
 
-bash
+`bash`
 cd ~/capstone
 source env/bin/activate
 pip install boto3
 pip list | grep -i boto
 ` boto3  1.35.x`
 ` botocore ...`
+
+**Step 3: store the credentials**
+
+`bash`
+mkdir -p ~/.aws
+nano ~/.aws/credentials
+`ini`
+[default]
+aws_access_key_id = AKIA...YOUR_KEY_ID
+aws_secret_access_key = YOUR_SECRET_KEY
+`bash`
+nano ~/.aws/config
+`ini`
+[default]
+region = us-east-1
 
