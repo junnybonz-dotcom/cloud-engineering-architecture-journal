@@ -633,3 +633,15 @@ Before checking anything below, write out, cold:
    from Day 74's nested-loop example")
 
 **Real-world use: Explaining your own design out loud, to an imagined listener who knows nothing, is one of the most reliable ways to find the parts you think you understand but actually only recognize — this is essentially a rubber-duck session applied to architecture instead of code, and it's a genuinely standard practice before a real design review or interview. Re-deriving Big-O cold, rather than re-reading it, is the same principle applied to the 15-minutes-a-day thread — if you can rebuild the idea from nothing, it's actually yours; if you can only recognize it when you see it again, it isn't yet.**   
+
+## October 8 (Day 78) Set up boto3 — install it, configure AWS credentials (~/.aws/credentials or env vars), confirm you can authenticate. +15 min: IAM basics — what IAM actually is, users vs roles vs policies.
+
+**Definition**
+
+**boto3**
+
+* **boto3** is AWS's official Python SDK. Each AWS API call (list buckets, describe instances) becomes a Python method call, so you manage infrastructure with code instead of console clicks.
+* `boto3.client("service")` gives you a low-level client for a service (`"s3"`, `"ec2"`, `"sts"`), where each method maps to one API call and returns plain dicts (Day 6/35).
+* **Credentials** are an access key ID plus a secret access key. boto3 finds them automatically, checking in order: environment variables (Day 31), then `~/.aws/credentials`, then an attached IAM role if running on EC2.
+* `~/.aws/credentials` holds the keys. `~/.aws/config` holds defaults like the region (Day 53: resources are region-scoped).
+* **STS** `get_caller_identity()` is the standard "who am I?" call. It needs no special permissions and returns the ARN of whoever boto3 authenticated as, which makes it the cleanest way to confirm setup worked.
