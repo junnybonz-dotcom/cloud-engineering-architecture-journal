@@ -694,3 +694,19 @@ nano ~/.aws/config
 [default]
 region = us-east-1
 
+Use the region you chose on Day 53. Then lock the file down (Day 8's octal math):
+
+`bash`
+chmod 600 ~/.aws/credentials
+ls -l ~/.aws/credentials
+` -rw------- 1 yourname yourname ...`
+
+**Alternative: environment variables (Day 31)**
+
+`bash`
+export AWS_ACCESS_KEY_ID=AKIA...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_DEFAULT_REGION=us-east-1
+
+These last only for the current shell session unless you put them in `.bashrc`, and you shouldn't put secrets there casually.
+
