@@ -645,3 +645,13 @@ Before checking anything below, write out, cold:
 * **Credentials** are an access key ID plus a secret access key. boto3 finds them automatically, checking in order: environment variables (Day 31), then `~/.aws/credentials`, then an attached IAM role if running on EC2.
 * `~/.aws/credentials` holds the keys. `~/.aws/config` holds defaults like the region (Day 53: resources are region-scoped).
 * **STS** `get_caller_identity()` is the standard "who am I?" call. It needs no special permissions and returns the ARN of whoever boto3 authenticated as, which makes it the cleanest way to confirm setup worked.
+
+**IAM, in 15 minutes**
+
+* **IAM** answers two questions: *who is this?* (authentication) and *what are they allowed to do?* (authorization).
+* **User:** a long-term identity, with a password for the console and/or access keys for code. Today's boto3 setup uses one.
+* **Role:** an identity with no permanent credentials. A user or service *assumes* it and receives temporary credentials. Services like EC2 use roles, which is why a VM shouldn't hold access keys.
+* **Policy:** a JSON document listing which **actions** are allowed or denied on which **resources.** Policies attach to users, roles, or groups.
+* **Default deny:** everything is denied unless a policy explicitly allows it, and an explicit deny always wins.
+* **How this relates to security groups (Day 54):** a security group controls whether *network traffic* reaches a resource. IAM controls whether an *API call* is permitted. This is also why Day 77's diagram showed object storage reached via IAM rather than a port rule.
+
