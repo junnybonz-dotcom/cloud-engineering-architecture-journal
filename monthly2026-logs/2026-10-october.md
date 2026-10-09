@@ -891,3 +891,7 @@ json
 }
 	
 Two details are worth noticing. `ListAllMyBuckets` has to use `"Resource": "*"`, because it operates on the account rather than a single bucket. And the bucket ARN appears twice: once for the bucket itself (needed for `s3:ListBucket`) and once with `/*` for the objects inside it (needed for `s3:GetObject`). That’s the same flat-key-space idea from Day 72, showing up in permissions
+
+**Real-world use: Granting *:* “just to get it working” is probably the single most common IAM mistake in real accounts. It works instantly, so it never gets revisited, and it sits there until the day a key leaks or a script misfires. The professional habit runs the opposite way: start from zero permissions, run the code, read the AccessDenied message (which names the exact action that was blocked), and add only that. Slightly slower at first, it’s far safer than shrinking an admin policy later when you can no longer remember what depends on what.                                                                                       This also connects to Day 75’s tier security. A database tier that accepts connections only from the app tier’s security group is least privilege at the network layer. A policy scoped to one bucket is the same principle at the API layer, so a compromise of one component stays contained to what that component actually needed.**
+
+## October 10 (Day 80) 
