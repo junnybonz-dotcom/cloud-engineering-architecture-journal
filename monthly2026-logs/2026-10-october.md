@@ -836,3 +836,19 @@ print(response)
 
 The `try`/`except`/`else` shape comes from Day 22 and Day 67. `else` runs only when the call succeeded.
 
+**Seeing least privilege work: call something outside your policy**
+
+`python`
+import boto3
+from botocore.exceptions import ClientError
+
+iam = boto3.client("iam")
+
+try:
+    iam.list_users()
+except ClientError as e:
+    print(e.response["Error"]["Code"])
+    ` AccessDenied`
+
+Your user authenticated fine yesterday (`get_caller_identity` worked). This call fails because no attached policy allows `iam:ListUsers`. That’s the default-deny rule from Day 78, and it’s the safety net doing its job.
+
