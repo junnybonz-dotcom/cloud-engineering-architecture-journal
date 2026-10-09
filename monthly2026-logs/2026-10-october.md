@@ -852,3 +852,42 @@ except ClientError as e:
 
 Your user authenticated fine yesterday (`get_caller_identity` worked). This call fails because no attached policy allows `iam:ListUsers`. That’s the default-deny rule from Day 78, and it’s the safety net doing its job.
 
+**Overly broad vs. scoped, side by side**
+
+Overly broad (this is what the managed `AdministratorAccess` policy amounts to):
+
+`json`
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "*",
+      "Resource": "*"
+    }
+  ]
+}
+
+Scoped to a real job: “read objects from one bucket, and list buckets”:
+
+json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListAllMyBuckets",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:ListBucket"],
+      "Resource": [
+        "arn:aws:s3:::junnybon-study-bucket-20261009",
+        "arn:aws:s3:::junnybon-study-bucket-20261009/*"
+      ]
+    }
+  ]
+}
+	
+Two details are worth noticing. `ListAllMyBuckets` has to use `"Resource": "*"`, because it operates on the account rather than a single bucket. And the bucket ARN appears twice: once for the bucket itself (needed for `s3:ListBucket`) and once with `/*` for the objects inside it (needed for `s3:GetObject`). That’s the same flat-key-space idea from Day 72, showing up in permissions
