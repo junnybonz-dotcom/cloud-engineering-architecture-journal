@@ -774,3 +774,22 @@ This is the same split as Day 56's SSH failures: "can't find or verify who you a
 * Bucket listing is account-wide. You see every bucket regardless of which region it lives in, even though each bucket itself belongs to one region (Day 53).
 * A brand-new account probably has **zero buckets,** so an empty list is a correct result. Your `study-boto3` user is read-only and can’t create one, so you’ll make one in the console to have something to list.
 
+**Least privilege**
+
+* **Least privilege** means giving an identity only the permissions its job requires, scoped to the specific resources it touches, and nothing more.
+* **Admin by default** is the opposite habit: `"Action": "*"` on `"Resource": "*"` means every API call on every resource in the account, including creating users, deleting data, and disabling logging.
+* The reason is **blast radius:** the damage possible if credentials leak (Day 78’s GitHub scenario) or code has a bug. A leaked read-only key lets someone look. A leaked admin key lets them *own* the account.
+* Scoping happens on both parts of a policy: **Action** (which API calls) and **Resource** (which things, identified by ARN).
+
+**Worked examples**
+
+**Step 1: create a bucket to list (console, not boto3)**
+
+Console → S3 → Create bucket
+Name: must be globally unique across all AWS accounts (Day 72),
+      e.g. junnybonz-study-bucket-20261009
+Region: the one you chose on Day 53
+Leave "Block all public access" ON (default)
+→ Create bucket
+
+An empty bucket costs nothing, and it sits well inside free-tier limits.
