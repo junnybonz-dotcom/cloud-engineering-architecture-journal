@@ -761,3 +761,16 @@ ClientError: AccessDenied (on a later call, not this one)
 This is the same split as Day 56's SSH failures: "can't find or verify who you are" versus "you're verified, but not permitted."
 
 **Real-world use: Hardcoding keys in a script is how real credentials leak. People push them to GitHub and get compromised within minutes, because bots scan public repos for AWS key patterns. Keeping keys in ~/.aws/credentials (outside your repo, mode 600) and using a limited IAM user instead of root is the baseline habit. The same reasoning is why on an EC2 instance the real-world answer is an IAM role rather than keys on disk: there is nothing stored to steal, because the credentials are temporary and issued automatically. That's coming later this week.                                                                                     get_caller_identity() is also worth keeping in your toolkit. When something is denied and you can't tell why, the first question is "which identity is this code actually running as?", and that call answers it directly.**
+
+## October 9 (Day 79) First script — boto3.client('s3').list_buckets(), print bucket names. +15 min: least privilege — why you scope permissions down instead of granting admin by default; look at one overly broad policy vs one scoped policy side by side
+
+**Definition**
+
+`list_buckets()`
+
+* `s3 = boto3.client("s3")` creates the S3 client using the credentials you set up yesterday. You never pass keys in code, because boto3 finds them itself.
+* `s3.list_buckets()` makes one API call (it needs the `s3:ListAllMyBuckets `permission, which `AmazonS3ReadOnlyAccess` includes) and returns a plain dict (Day 6/35).
+* The response has a `"Buckets"` key holding a **list of dicts,** one per bucket, each with `"Name"` and `"CreationDate"` (a Python `datetime`, from Day 17). It also has `"Owner"` and `"ResponseMetadata"`, which you’ll mostly ignore.
+* Bucket listing is account-wide. You see every bucket regardless of which region it lives in, even though each bucket itself belongs to one region (Day 53).
+* A brand-new account probably has **zero buckets,** so an empty list is a correct result. Your `study-boto3` user is read-only and can’t create one, so you’ll make one in the console to have something to list.
+
