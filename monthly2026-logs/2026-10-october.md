@@ -821,3 +821,18 @@ python3 list_buckets.py
 ` junnybonz-study-bucket-20261009  (created 2026-10-09)`
 ` Total: 1`
 
+**What the raw response looks like (trimmed)**
+
+`python`
+print(response)
+` {`
+`   'ResponseMetadata': {'HTTPStatusCode': 200, ...},`
+`   'Buckets': [`
+`       {'Name': 'junny-study-bucket-20261009',`
+`        'CreationDate': datetime.datetime(2026, 10, 9, 8, 14, 3, tzinfo=tzutc())}`
+`   ],`
+`   'Owner': {'ID': '...'}`
+` }`
+
+The `try`/`except`/`else` shape comes from Day 22 and Day 67. `else` runs only when the call succeeded.
+
