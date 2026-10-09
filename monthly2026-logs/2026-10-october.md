@@ -793,3 +793,31 @@ Leave "Block all public access" ON (default)
 → Create bucket
 
 An empty bucket costs nothing, and it sits well inside free-tier limits.
+
+**Step 2: the script**
+
+`python`
+` list_buckets.py`
+import boto3
+from botocore.exceptions import ClientError
+
+s3 = boto3.client("s3")
+
+try:
+    response = s3.list_buckets()
+except ClientError as e:
+    print(f"AWS rejected the request: {e.response['Error']['Code']}")
+else:
+    buckets = response["Buckets"]
+    if not buckets:
+        print("No buckets found in this account.")
+    for bucket in buckets:
+        created = bucket["CreationDate"].strftime("%Y-%m-%d")
+        print(f"{bucket['Name']}  (created {created})")
+    print(f"Total: {len(buckets)}")
+`bash`
+source env/bin/activate
+python3 list_buckets.py
+` junnybonz-study-bucket-20261009  (created 2026-10-09)`
+` Total: 1`
+
