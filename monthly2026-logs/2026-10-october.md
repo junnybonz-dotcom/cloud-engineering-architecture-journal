@@ -1018,3 +1018,6 @@ S3's underlying storage system      AWS                nothing to do
 
 Notice that nearly everything you’ve actually done in this course falls in the “you” column. AWS’s side is the part you never see.
 
+**Real-world use: Listing objects with a prefix is the building block of real backup tooling: “find yesterday’s backup,” “delete anything older than 30 days,” “count what’s under logs/2026/.” The empty-bucket KeyError and the 1,000-object cap are both classic production bugs, because the code works perfectly on a test bucket with five files and misbehaves once it meets real data. Day 74’s lesson that small-N testing hides scaling problems applies here too.                                                                                         The shared responsibility model matters because most cloud breaches aren’t AWS being hacked. They are customer-side configuration mistakes: a publicly readable S3 bucket, an admin key committed to GitHub, a security group open to 0.0.0.0/0 on a database port. AWS’s side is rarely the weak link, which is why “the cloud is secure” and “my deployment is secure” are different claims. Knowing which column a layer sits in tells you whether a problem is yours to fix.** 
+
+## October 11 (Day 81) 
