@@ -1002,3 +1002,19 @@ It’s the same loop as before with an outer loop over pages. The paginator hand
 NoSuchBucket  → the name is wrong, or it's in a different account
 AccessDenied  → you authenticated, but no policy allows s3:ListBucket here
 
+**Shared responsibility, mapped onto things you’ve already done**
+
+Layer                               Who secures it     Where you touched it
+----------------------------------  -----------------  ---------------------------
+Data center walls, power, hardware  AWS                nothing to do
+Hypervisor / host isolation         AWS                nothing to do
+Your VM's OS patches                YOU                Day 57: apt update && upgrade
+Open ports on the VM                YOU                Day 54/59: security groups
+SSH key handling                    YOU                Day 33/56: key pair, chmod 600
+Who can call which AWS APIs         YOU                Day 78/79: IAM users, policies
+Bucket public-access settings       YOU                Day 79: "Block all public access"
+Is data encrypted, and with what    YOU (configure)    covered in tomorrow's 15 minutes
+S3's underlying storage system      AWS                nothing to do
+
+Notice that nearly everything you’ve actually done in this course falls in the “you” column. AWS’s side is the part you never see.
+
