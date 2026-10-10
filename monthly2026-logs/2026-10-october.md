@@ -977,3 +977,11 @@ python3 list_objects.py your-bucket-name backups/
 
 The `sys.argv` check is Day 25’s CLI habit, and `format_size` is plain Day 15 function work.
 
+**Seeing the empty-bucket trap**
+
+`python`
+response = s3.list_objects_v2(Bucket="an-empty-bucket")
+print(response.keys())
+` dict_keys(['ResponseMetadata', 'IsTruncated', 'Name', 'Prefix', 'MaxKeys', ...])`
+` no 'Contents' key, so response['Contents'] would crash`
+
