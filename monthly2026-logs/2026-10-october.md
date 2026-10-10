@@ -906,3 +906,10 @@ Two details are worth noticing. `ListAllMyBuckets` has to use `"Resource": "*"`,
 * **Pagination:** one call returns at most 1,000 objects. Beyond that, you use a **paginator** (`s3.get_paginator("list_objects_v2")`), which fetches page after page for you. A script that ignores this silently reports a wrong total on large buckets.
 * `Prefix="backups/"` filters to keys starting with that string. This is the “folders aren’t real” point from Day 72, now doing actual work.
 
+**Shared responsibility model**
+
+* The cloud provider and you each secure different layers. The standard phrasing is **security** *of* **the cloud** (AWS) versus **security** *in* **the cloud** (you).
+* **AWS secures:** physical data centers, hardware, the global network, the hypervisor (the software that splits one physical machine into many VMs), and the underlying software of managed services.
+* **You secure:** your data, who can access it (IAM), how resources are configured (security groups, public access settings), and encryption choices.
+* **The split shifts by service.** With EC2, you get a raw VM, so you also patch the guest OS and secure what runs on it. With S3, AWS runs the storage system entirely, so your job shrinks to access policies, public-access settings, and encryption.
+
