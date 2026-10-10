@@ -539,15 +539,15 @@ Today has no new concept — it's applying Days 71–75 as one synthesis exercis
               ┌─────────────┘          └─────────────┐
               ▼                                       ▼
    ┌─────────────────────┐                 ┌─────────────────────────┐
-   │     DATA TIER        │                 │   OBJECT STORAGE        │
-   │  BLOCK STORAGE        │                 │  (recipe photos, user   │
-   │  (recipes, users,     │                 │   avatars)              │
+   │     DATA TIER          │                 │   OBJECT STORAGE        │
+   │  BLOCK STORAGE         │                 │  (recipe photos, user   │
+   │  (recipes, users,      │                 │   avatars)              │
    │   ratings — relational │                 │  - whole-file, read-    │
    │   DB, small random     │                 │    heavy, no in-place   │
    │   writes)              │                 │    edits                │
    │  SG: inbound from App  │                 │  - accessed via HTTP    │
    │  tier SG only          │                 │    from App tier        │
-   └─────────────────────┘                 └─────────────────────────┘
+   └──────────────────────                    └─────────────────────────┘
 
 **Why each storage decision, walked through the Day 74 framework:**
 
@@ -894,4 +894,15 @@ Two details are worth noticing. `ListAllMyBuckets` has to use `"Resource": "*"`,
 
 **Real-world use: Granting *:* “just to get it working” is probably the single most common IAM mistake in real accounts. It works instantly, so it never gets revisited, and it sits there until the day a key leaks or a script misfires. The professional habit runs the opposite way: start from zero permissions, run the code, read the AccessDenied message (which names the exact action that was blocked), and add only that. Slightly slower at first, it’s far safer than shrinking an admin policy later when you can no longer remember what depends on what.                                                                                       This also connects to Day 75’s tier security. A database tier that accepts connections only from the app tier’s security group is least privilege at the network layer. A policy scoped to one bucket is the same principle at the API layer, so a compromise of one component stays contained to what that component actually needed.**
 
-## October 10 (Day 80) 
+## October 10 (Day 80) Extend it — list objects inside a bucket (name, size, last modified). +15 min: shared responsibility model — what AWS secures (physical infra, hypervisor) vs what you secure (data, access, config).
+
+**Definition**
+
+`list_objects_v2`
+
+* `s3.list_objects_v2(Bucket="name")` lists the objects inside one bucket. It needs the `s3:ListBucket` permission, which `AmazonS3ReadOnlyAccess` already includes.
+* The response has a `"Contents"` key holding a `list of dicts,` one per object. Each has `"Key"` (the full name, Day 72’s flat-key idea), `"Size"` (in bytes), and `"LastModified`" (a `datetime`, like `CreationDate` yesterday).
+* **An empty bucket has no** `"Contents"` **key at all**. Writing `response["Contents"]` raises a `KeyError`, so use `response.get("Contents", [])`.
+* **Pagination:** one call returns at most 1,000 objects. Beyond that, you use a **paginator** (`s3.get_paginator("list_objects_v2")`), which fetches page after page for you. A script that ignores this silently reports a wrong total on large buckets.
+* `Prefix="backups/"` filters to keys starting with that string. This is the “folders aren’t real” point from Day 72, now doing actual work.
+
