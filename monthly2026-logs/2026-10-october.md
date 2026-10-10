@@ -923,3 +923,57 @@ Then create a folder named "backups" and upload one file inside it.
 
 Your `study-boto3` user is read-only, so uploading happens in the console.
 
+**Step 2: the script**
+
+`python`
+` list_objects.py`
+import sys
+import boto3
+from botocore.exceptions import ClientError
+
+
+def format_size(num_bytes):
+    for unit in ["B", "KB", "MB", "GB"]:
+        if num_bytes < 1024:
+            return f"{num_bytes:.0f} {unit}"
+        num_bytes /= 1024
+    return f"{num_bytes:.1f} TB"
+
+
+def list_objects(bucket, prefix=""):
+    s3 = boto3.client("s3")
+    try:
+        response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix)
+    except ClientError as e:
+        print(f"Failed: {e.response['Error']['Code']}")
+        return
+
+    objects = response.get("Contents", [])
+    if not objects:
+        print("No objects found.")
+        return
+
+    for obj in objects:
+        modified = obj["LastModified"].strftime("%Y-%m-%d %H:%M")
+        print(f"{obj['Key']:<40} {format_size(obj['Size']):>9}   {modified}")
+    print(f"Total: {len(objects)} objects")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python3 list_objects.py <bucket> [prefix]")
+        sys.exit(1)
+    list_objects(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "")`       
+`bash`    
+python3 list_objects.py your-bucket-name
+` README.md                                   2 KB   2026-10-10 02:41`
+` backups/weather_backup_20261001.db         24 KB   2026-10-10 02:44`
+` notes.txt                                 312 B   2026-10-10 02:40`
+` Total: 3 objects`
+
+python3 list_objects.py your-bucket-name backups/
+` backups/weather_backup_20261001.db         24 KB   2026-10-10 02:44`
+` Total: 1 objects`
+
+The `sys.argv` check is Day 25’s CLI habit, and `format_size` is plain Day 15 function work.
+
