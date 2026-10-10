@@ -997,3 +997,8 @@ print(total)
 
 It’s the same loop as before with an outer loop over pages. The paginator handles the “fetch the next 1,000” bookkeeping.
 
+**Error codes you can now tell apart (Day 79’s habit)**
+
+NoSuchBucket  → the name is wrong, or it's in a different account
+AccessDenied  → you authenticated, but no policy allows s3:ListBucket here
+
