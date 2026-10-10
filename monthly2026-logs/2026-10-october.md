@@ -985,3 +985,15 @@ print(response.keys())
 ` dict_keys(['ResponseMetadata', 'IsTruncated', 'Name', 'Prefix', 'MaxKeys', ...])`
 ` no 'Contents' key, so response['Contents'] would crash`
 
+**Pagination, for when a bucket has more than 1,000 objects**
+
+`python`
+paginator = s3.get_paginator("list_objects_v2")
+total = 0
+for page in paginator.paginate(Bucket=bucket):
+    for obj in page.get("Contents", []):
+        total += 1
+print(total)
+
+It’s the same loop as before with an outer loop over pages. The paginator handles the “fetch the next 1,000” bookkeeping.
+
