@@ -913,3 +913,13 @@ Two details are worth noticing. `ListAllMyBuckets` has to use `"Resource": "*"`,
 * **You secure:** your data, who can access it (IAM), how resources are configured (security groups, public access settings), and encryption choices.
 * **The split shifts by service.** With EC2, you get a raw VM, so you also patch the guest OS and secure what runs on it. With S3, AWS runs the storage system entirely, so your job shrinks to access policies, public-access settings, and encryption.
 
+**Worked examples**
+
+**Step 1: put a few objects in your bucket (console)**
+
+Console → S3 → your bucket → Upload
+Upload 2-3 small files, e.g. a text file or a copy of your README.
+Then create a folder named "backups" and upload one file inside it.
+
+Your `study-boto3` user is read-only, so uploading happens in the console.
+
