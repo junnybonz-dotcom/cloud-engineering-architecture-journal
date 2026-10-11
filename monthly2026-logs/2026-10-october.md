@@ -1126,3 +1126,10 @@ for vol in ec2.describe_volumes()["Volumes"]:
 
 That second output is the interesting one. Your Day 55 root volume is the block storage from Day 73, and it was probably created unencrypted, because the account-level default is off unless you turned it on. That’s a real example of the “you configure it” half of shared responsibility.
 
+**Where each toggle lives**
+
+S3:   Console → bucket → Properties → Default encryption → Edit
+EBS:  Console → EC2 → Settings (or "Account attributes") → EBS encryption
+      → "Always encrypt new EBS volumes" (applies per region, to new volumes only)
+
+      
