@@ -1020,4 +1020,17 @@ Notice that nearly everything you’ve actually done in this course falls in the
 
 **Real-world use: Listing objects with a prefix is the building block of real backup tooling: “find yesterday’s backup,” “delete anything older than 30 days,” “count what’s under logs/2026/.” The empty-bucket KeyError and the 1,000-object cap are both classic production bugs, because the code works perfectly on a test bucket with five files and misbehaves once it meets real data. Day 74’s lesson that small-N testing hides scaling problems applies here too.                                                                                         The shared responsibility model matters because most cloud breaches aren’t AWS being hacked. They are customer-side configuration mistakes: a publicly readable S3 bucket, an admin key committed to GitHub, a security group open to 0.0.0.0/0 on a database port. AWS’s side is rarely the weak link, which is why “the cloud is secure” and “my deployment is secure” are different claims. Knowing which column a layer sits in tells you whether a problem is yours to fix.** 
 
-## October 11 (Day 81) 
+## October 11 (Day 81) List your VMs — boto3.client('ec2').describe_instances(), print instance IDs and states. +15 min: encryption at rest — what it protects against, where you’d toggle it (S3 SSE, EBS encryption).
+
+**Definition**
+
+`describe_instances()`
+
+* `ec2 = boto3.client("ec2")` uses the same credentials as the last three days. It needs `ec2:DescribeInstances`, which `AmazonEC2ReadOnlyAccess` already includes.
+* The response nests two levels deep: `"Reservations"` is a list, and each reservation holds an "Instances" list. A reservation is just the group of instances created by one launch request, so you loop over reservations, then over the instances inside each (a Day 3 nested loop).
+* Each instance dict has `"InstanceId"`, `"State"` (a dict like `{"Name": "running", "Code": 16}`), `"InstanceType"`, `"LaunchTime"`, and more.
+* **Optional fields can be missing.** A stopped instance has no `"PublicIpAddress"` key, so use `.get()` instead of `[]` (the same trap as the empty-bucket `Contents` on Day 80).
+* **Names live in tags.** There’s no `"Name"` field. It’s a `"Tags"` list of `{"Key": ..., "Value": ...}` dicts, and the one with `Key == "Name"` is what the console shows.
+* **It’s region-scoped** (Day 53). The call only sees instances in the region boto3 is configured for. An empty result often means “wrong region”, not “no instances.”
+* **State values:** `pending`, `running`, `stopping`, `stopped`, `shutting-down`, `terminated`. Terminated instances stay visible for roughly an hour.
+
