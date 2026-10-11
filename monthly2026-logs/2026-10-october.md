@@ -1034,3 +1034,13 @@ Notice that nearly everything you’ve actually done in this course falls in the
 * **It’s region-scoped** (Day 53). The call only sees instances in the region boto3 is configured for. An empty result often means “wrong region”, not “no instances.”
 * **State values:** `pending`, `running`, `stopping`, `stopped`, `shutting-down`, `terminated`. Terminated instances stay visible for roughly an hour.
 
+**Encryption at rest**
+
+* **At rest** means data sitting on storage, as opposed to **in transit** (moving over a network, which is a separate topic). Encryption at rest scrambles the stored bytes so they’re unreadable without the key.
+* **What it protects against:** someone getting at the raw storage without going through AWS’s access controls. That includes lost or improperly retired drives, and a snapshot or backup copied out of your account. An encrypted snapshot is useless to whoever holds it unless they can also use the encryption key.
+* **What it does not protect against:** anyone who is legitimately allowed to read the data. When your code, or someone with stolen valid credentials, asks for an encrypted object, the service decrypts it transparently and hands it over. It also doesn’t make a public bucket private. This is why encryption complements IAM (Days 78–79) rather than replacing it.
+* **Where you toggle it:**
+1. * **S3 (SSE, server-side encryption):** since January 2023, every new object is encrypted by default with SSE-S3 (AES-256, keys fully managed by AWS). You can switch a bucket to SSE-KMS if you want your own key and an audit trail of key use. The setting lives under the bucket’s Properties → Default encryption.
+2. * **EBS:** encryption is chosen when a volume is created, or turned on account-wide per region with “EBS encryption by default” in the EC2 console’s settings. An existing unencrypted volume can’t be flipped in place. You snapshot it, copy the snapshot with encryption on, and create a new volume from that copy.
+* **Shared responsibility (Day 80):** AWS does the cryptography. *You* decide whether it’s on and which key protects it.
+
