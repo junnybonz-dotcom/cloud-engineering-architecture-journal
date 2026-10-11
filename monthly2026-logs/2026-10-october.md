@@ -1091,3 +1091,12 @@ The IP and ID should match what you wrote down on Day 55. ec2.meta.region_name p
 `     ]}`
 ` ]}`
 
+**Filtering to one state**
+
+`python`
+response = ec2.describe_instances(
+    Filters=[{"Name": "instance-state-name", "Values": ["running"]}]
+)
+
+AWS does the filtering server-side, so you don’t loop through and discard instances in Python (the Day 44 `WHERE` idea, applied to an API).
+
