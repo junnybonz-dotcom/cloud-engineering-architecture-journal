@@ -1044,3 +1044,37 @@ Notice that nearly everything you’ve actually done in this course falls in the
 2. * **EBS:** encryption is chosen when a volume is created, or turned on account-wide per region with “EBS encryption by default” in the EC2 console’s settings. An existing unencrypted volume can’t be flipped in place. You snapshot it, copy the snapshot with encryption on, and create a new volume from that copy.
 * **Shared responsibility (Day 80):** AWS does the cryptography. *You* decide whether it’s on and which key protects it.
 
+**Worked examples**
+
+**The script**
+
+`python`
+` list_instances.py`
+import boto3
+from botocore.exceptions import ClientError
+
+ec2 = boto3.client("ec2")
+
+try:
+    response = ec2.describe_instances()
+except ClientError as e:
+    print(f"Failed: {e.response['Error']['Code']}")
+else:
+    count = 0
+    for reservation in response["Reservations"]:
+        for inst in reservation["Instances"]:
+            tags = {t["Key"]: t["Value"] for t in inst.get("Tags", [])}
+            name = tags.get("Name", "(no name)")
+            ip = inst.get("PublicIpAddress", "-")
+            state = inst["State"]["Name"]
+            print(f"{inst['InstanceId']}  {name:<14} {state:<10} {inst['InstanceType']:<9} {ip}")
+            count += 1
+    print(f"Total: {count} instances in {ec2.meta.region_name}")
+`bash`
+source env/bin/activate
+python3 list_instances.py
+` i-0a1b2c3d4e5f67890  study-vm-01    running    t3.micro  54.221.XX.XX`
+` Total: 1 instances in us-east-1`
+
+The IP and ID should match what you wrote down on Day 55. ec2.meta.region_name prints the region boto3 actually used, which makes the wrong-region problem easy to spot.
+
