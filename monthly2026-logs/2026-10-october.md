@@ -1100,3 +1100,11 @@ response = ec2.describe_instances(
 
 AWS does the filtering server-side, so you don’t loop through and discard instances in Python (the Day 44 `WHERE` idea, applied to an API).
 
+**The wrong-region trap**
+
+`python`
+ec2_other = boto3.client("ec2", region_name="eu-west-1")
+print(ec2_other.describe_instances()["Reservations"])
+` []`
+` not an error, just nothing in that region`
+
