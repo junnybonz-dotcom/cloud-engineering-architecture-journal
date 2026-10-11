@@ -1108,3 +1108,21 @@ print(ec2_other.describe_instances()["Reservations"])
 ` []`
 ` not an error, just nothing in that region`
 
+**Checking encryption on what you already own**
+
+`python`
+` S3: what encryption does my bucket use by default?`
+s3 = boto3.client("s3")
+rules = s3.get_bucket_encryption(Bucket="your-bucket-name")[
+    "ServerSideEncryptionConfiguration"]["Rules"]
+print(rules[0]["ApplyServerSideEncryptionByDefault"]["SSEAlgorithm"])
+` AES256   <- SSE-S3`
+`python`
+` EBS: is my VM's disk encrypted?`
+for vol in ec2.describe_volumes()["Volumes"]:
+    attached_to = [a["InstanceId"] for a in vol["Attachments"]]
+    print(vol["VolumeId"], f"{vol['Size']} GiB", "encrypted:", vol["Encrypted"], attached_to)
+` vol-0f1e2d3c4b5a69788 8 GiB encrypted: False ['i-0a1b2c3d4e5f67890']`
+
+That second output is the interesting one. Your Day 55 root volume is the block storage from Day 73, and it was probably created unencrypted, because the account-level default is off unless you turned it on. That’s a real example of the “you configure it” half of shared responsibility.
+
