@@ -1132,4 +1132,6 @@ S3:   Console → bucket → Properties → Default encryption → Edit
 EBS:  Console → EC2 → Settings (or "Account attributes") → EBS encryption
       → "Always encrypt new EBS volumes" (applies per region, to new volumes only)
 
-      
+**Real-world use: describe_instances is the starting point of nearly every real infrastructure script: finding every running instance that’s missing a tag, listing everything still running so it doesn’t quietly bill you (the Day 61 concern), or locating the instance to patch. The nested Reservations → Instances structure and the missing-key behavior trip up almost everyone once. Writing it defensively with .get() now saves a crash the first time a stopped instance appears in the results.                                                                                    Encryption at rest is a standard compliance checkbox, and it’s cheap to enable because there’s no meaningful performance cost. Knowing its limits matters more than knowing the toggle. “It’s encrypted” gets said as though it settles the security question, but it only defends against the storage layer being exposed, not against the credential or permission mistakes that cause most real incidents. That’s why today’s 15 minutes sits next to Days 78–79 rather than replacing them.**
+
+## October 12 (82) 
