@@ -1078,3 +1078,16 @@ python3 list_instances.py
 
 The IP and ID should match what you wrote down on Day 55. ec2.meta.region_name prints the region boto3 actually used, which makes the wrong-region problem easy to spot.
 
+**The raw shape (trimmed)**
+
+`python`
+` {'Reservations': [`
+`     {'Instances': [`
+`         {'InstanceId': 'i-0a1b2c3d4e5f67890',`
+`          'InstanceType': 't3.micro',`
+`          'State': {'Code': 16, 'Name': 'running'},`
+`          'PublicIpAddress': '54.221.XX.XX',`
+`          'Tags': [{'Key': 'Name', 'Value': 'study-vm-01'}], ...}`
+`     ]}`
+` ]}`
+
