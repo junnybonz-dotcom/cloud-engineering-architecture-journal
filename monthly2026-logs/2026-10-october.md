@@ -1134,4 +1134,14 @@ EBS:  Console → EC2 → Settings (or "Account attributes") → EBS encryption
 
 **Real-world use: describe_instances is the starting point of nearly every real infrastructure script: finding every running instance that’s missing a tag, listing everything still running so it doesn’t quietly bill you (the Day 61 concern), or locating the instance to patch. The nested Reservations → Instances structure and the missing-key behavior trip up almost everyone once. Writing it defensively with .get() now saves a crash the first time a stopped instance appears in the results.                                                                                    Encryption at rest is a standard compliance checkbox, and it’s cheap to enable because there’s no meaningful performance cost. Knowing its limits matters more than knowing the toggle. “It’s encrypted” gets said as though it settles the security question, but it only defends against the storage layer being exposed, not against the credential or permission mistakes that cause most real incidents. That’s why today’s 15 minutes sits next to Days 78–79 rather than replacing them.**
 
-## October 12 (82) 
+## October 12 (82) Combine both — one script that reports buckets and instances together, formatted cleanly. +15 min: encryption in transit — TLS/HTTPS, why the connection between your script and AWS’s API needs it too, not just the stored data.
+
+**Definition**
+
+**Combining the two scripts**
+
+* Days 79 and 81 each answer one question. Today’s script answers “what do I own in this account?” in one run: buckets and instances together, under one header.
+* **Each section handles its own failure.** If the bucket call is denied, the instance section should still print. This is Day 67’s lesson (separate failure layers, don’t let one crash hide the other), applied to two AWS services.
+* **Pagination applies here too** (Day 80). `describe_instances` can return results in pages, so the script uses a paginator.
+* `get_caller_identity()` (Day 78) goes in the header so every report says which identity produced it.
+
