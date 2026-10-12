@@ -1145,3 +1145,14 @@ EBS:  Console → EC2 → Settings (or "Account attributes") → EBS encryption
 * **Pagination applies here too** (Day 80). `describe_instances` can return results in pages, so the script uses a paginator.
 * `get_caller_identity()` (Day 78) goes in the header so every report says which identity produced it.
 
+**Encryption in transit**
+
+* **In transit** means data moving across a network, as opposed to at rest (Day 81). **TLS** is the protocol that protects it. **HTTPS is HTTP running over TLS,** on port 443 instead of 80 (Day 25).
+* TLS provides three things:
+    * **Confidentiality:** anyone on the path (Wi-Fi, ISP, a router in between) sees scrambled bytes.
+    * **Integrity:** tampering in flight is detected.
+    * **Authentication:** the server presents a **certificate** signed by a trusted authority, proving you reached the real endpoint and not an impostor.
+* **Simplified handshake:** client says hello and lists what it supports, the server replies with its certificate, the client verifies it, both sides agree on a shared key, and everything after that is encrypted with it. This is Day 21’s Presentation layer (“TLS encrypts it”) in action.
+* **Why your script’s connection to AWS needs it:** your API calls cross networks you don’t control. AWS’s request signing (SigV4) means your **secret key is never transmitted,** only a signature computed from it. But the *contents* still travel: bucket names, instance IDs, public IPs, S3 object bytes, and the session token if you’re ever using role credentials. Without TLS, all of that is readable on the wire, and without certificate verification an impostor could feed your script fake responses.
+* **boto3 does this for you:** it uses HTTPS and verifies certificates by default. The two ways to switch that off are `use_ssl=False` and `verify=False`. Don’t. Disabling verification is the classic “fix” for a certificate error, and it removes the authentication property entirely.
+
