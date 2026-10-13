@@ -1302,3 +1302,11 @@ curl -vI https://api.github.com 2>&1 | grep -iE "tls|ssl|verify"
 
 The last line is the authentication property: curl checked the certificate and it was valid.
 
+**Now the same check against your own nginx from Day 58**
+
+`bash`
+curl -vI http://54.221.XX.XX 2>&1 | grep -iE "tls|ssl|verify"
+` (no output)`
+
+Empty output means no TLS was involved at all. Your nginx serves plain HTTP on port 80, so anything sent to it crosses the network readable. Real sites also open 443 in the security group (Day 59) and install a certificate. You don’t need to do that today, but it’s the concrete gap between your VM and a production web tier.
+
