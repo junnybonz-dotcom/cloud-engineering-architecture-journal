@@ -1352,4 +1352,19 @@ Read it as: *deny* every S3 action on this bucket and its objects whenever the r
 
 **Real-world use: A single inventory script is a real tool. Audit and cost-control scripts start exactly here: list everything, flag what’s running that shouldn’t be, and notice what’s missing a tag. With free-tier limits in mind (Days 52 and 61), “show me everything I own and what state it’s in” is how you catch a forgotten instance before it bills you. The per-section error handling matters more than it looks: a report that dies entirely because one service was denied hides the information you still could have have had.                  Encryption in transit is usually on by default, and that’s the risk. People rarely turn it on, but they do turn it off, and verify=False is the usual way. A script that works around a certificate error that way will keep working while quietly accepting any server that claims to be AWS. Together with Day 81, you now have both halves: at rest protects stored bytes from someone reaching the storage layer, in transit protects them while moving. Neither helps if the credentials or permissions are wrong, which is why Days 78–79 come first.**
 
-## October 13 (Day 83) 
+## October 13 (Day 83) Add error handling — try/except for missing credentials, wrong region, expired tokens. +15 min: write an actual least-privilege IAM policy by hand (JSON) that only allows read-only S3 access — direct application of Day 9’s concept.
+
+**Definition**
+
+**Two families of boto3 exceptions**
+
+* `ClientError:` the request reached AWS and AWS replied with an error. The reason is in `e.response["Error"]["Code"]` (the habit from Days 79-80). `AccessDenied` and `NoSuchBucket` are examples.
+* `BotoCoreError` (and its subclasses): the request never got a proper answer, because boto3 failed **before or around** the call. This family covers the three failures in today’s assignment:
+   * `NoCredentialsError`: no credentials found anywhere in the lookup chain from Day 78.
+   * `PartialCredentialsError:` half a credential, such as an access key with no secret.
+   * `ProfileNotFound`: `AWS_PROFILE` names a profile that doesn’t exist.
+   * `NoRegionError`: no region configured (clients like EC2 need one, but S3 typically still works without it).
+   * `EndpointConnectionError`: can’t reach the endpoint, often because the region name is wrong.
+   * `SSLError`: the TLS certificate check failed (Day 82). Never “fix” this with `verify=False`.
+* **Catch order matters.** Put specific exceptions first and the broad ones last, the same rule as Day 22. Also, a client can fail at **creation** (`boto3.client("ec2")` raises `NoRegionError` immediately), so create clients *inside* the try.
+
