@@ -1529,3 +1529,21 @@ instances = run_checked("EC2", list_instance_summaries, "us-east-99")
 
 Some mistakes never raise anything. A region that exists but is the *wrong* one returns an empty list (Day 81), so no `try`/`except` can catch it. The defense is printing the region in your output, as the Day 82 report did
 
+**Testing the expired-token handler without waiting for a real expiry**
+
+`python`
+from botocore.exceptions import ClientError
+from aws_errors import describe_error
+
+fake = ClientError(
+    {"Error": {"Code": "ExpiredToken", "Message": "The provided token has expired."}},
+    "ListBuckets",
+)
+what, hint = describe_error(fake)
+print(what)
+print(hint)
+` Credentials expired (ExpiredToken).`
+` Temporary credentials (role/SSO/STS) have a lifetime. Refresh them and rerun.`
+
+You can build a `ClientError` by hand to unit-test an error path you can’t trigger on demand. Try `RequestTimeTooSkewed` and `UnauthorizedOperation` the same way.
+
