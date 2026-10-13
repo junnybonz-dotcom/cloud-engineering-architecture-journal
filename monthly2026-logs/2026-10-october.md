@@ -1375,3 +1375,8 @@ Read it as: *deny* every S3 action on this bucket and its objects whenever the r
 * **Clock skew** is a lookalike: AWS rejects signed requests when your machine’s clock is too far off (`RequestTimeTooSkewed`). That’s a real risk on a VM.
 * **Codes differ by service.** S3 says `AccessDenied`, but EC2 says `UnauthorizedOperation`. A handler has to know both.
 
+**A hand-written least-privilege policy**
+
+* **Bucket-level actions** (like `s3:ListBucket`) attach to the bucket ARN. **Object-level actions** (like `s3:GetObject`) attach to the `/*` ARN. Separate statements keep each action on only the resource it applies to.
+* `s3:ListAllMyBuckets` can only use `"Resource": "*"`. It’s an account-level action and can’t be scoped to one bucket.
+
