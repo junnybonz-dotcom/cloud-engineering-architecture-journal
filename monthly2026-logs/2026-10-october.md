@@ -1156,3 +1156,116 @@ EBS:  Console → EC2 → Settings (or "Account attributes") → EBS encryption
 * **Why your script’s connection to AWS needs it:** your API calls cross networks you don’t control. AWS’s request signing (SigV4) means your **secret key is never transmitted,** only a signature computed from it. But the *contents* still travel: bucket names, instance IDs, public IPs, S3 object bytes, and the session token if you’re ever using role credentials. Without TLS, all of that is readable on the wire, and without certificate verification an impostor could feed your script fake responses.
 * **boto3 does this for you:** it uses HTTPS and verifies certificates by default. The two ways to switch that off are `use_ssl=False` and `verify=False`. Don’t. Disabling verification is the classic “fix” for a certificate error, and it removes the authentication property entirely.
 
+**Worked examples**
+
+**The combined script**
+
+`python`
+` aws_report.py`
+import datetime
+import boto3
+from botocore.exceptions import ClientError, NoCredentialsError
+
+
+def get_buckets(s3):
+    buckets = s3.list_buckets().get("Buckets", [])
+    rows = [(b["Name"], b["CreationDate"].strftime("%Y-%m-%d")) for b in buckets]
+    return sorted(rows)
+
+
+def get_instances(ec2):
+    rows = []
+    paginator = ec2.get_paginator("describe_instances")
+    for page in paginator.paginate():
+        for reservation in page["Reservations"]:
+            for inst in reservation["Instances"]:
+                tags = {t["Key"]: t["Value"] for t in inst.get("Tags", [])}
+                rows.append((
+                    tags.get("Name", "(no name)"),
+                    inst["InstanceId"],
+                    inst["State"]["Name"],
+                    inst["InstanceType"],
+                    inst.get("PublicIpAddress", "-"),
+                ))
+    return sorted(rows)
+
+
+def report_buckets(s3):
+    print("\nS3 BUCKETS")
+    try:
+        rows = get_buckets(s3)
+    except ClientError as e:
+        print(f"  could not list buckets: {e.response['Error']['Code']}")
+        return
+    if not rows:
+        print("  (none)")
+        return
+    print(f"  {'NAME':<40} {'CREATED':<12}")
+    for name, created in rows:
+        print(f"  {name:<40} {created:<12}")
+    print(f"  Total: {len(rows)}")
+
+
+def report_instances(ec2):
+    print("\nEC2 INSTANCES")
+    try:
+        rows = get_instances(ec2)
+    except ClientError as e:
+        print(f"  could not list instances: {e.response['Error']['Code']}")
+        return
+    if not rows:
+        print(f"  (none in {ec2.meta.region_name})")
+        return
+    print(f"  {'NAME':<16} {'INSTANCE ID':<21} {'STATE':<10} {'TYPE':<10} PUBLIC IP")
+    for name, iid, state, itype, ip in rows:
+        print(f"  {name:<16} {iid:<21} {state:<10} {itype:<10} {ip}")
+    print(f"  Total: {len(rows)}")
+
+
+def main():
+    try:
+        identity = boto3.client("sts").get_caller_identity()["Arn"]
+    except NoCredentialsError:
+        print("No credentials found. Check ~/.aws/credentials.")
+        return
+    except ClientError as e:
+        print(f"Authentication failed: {e.response['Error']['Code']}")
+        return
+
+    s3 = boto3.client("s3")
+    ec2 = boto3.client("ec2")
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    print("=" * 62)
+    print(f"AWS REPORT   {now}")
+    print(f"Identity: {identity}")
+    print(f"Region:   {ec2.meta.region_name}")
+    print("=" * 62)
+
+    report_buckets(s3)
+    report_instances(ec2)
+
+
+if __name__ == "__main__":
+    main()
+`bash`
+source env/bin/activate
+python3 aws_report.py
+` ==============================================================`
+` AWS REPORT   2026-10-12 09:30`
+` Identity: arn:aws:iam::123456789012:user/study-boto3`
+` Region:   us-east-1`
+` ==============================================================`
+`
+` S3 BUCKETS`
+`   NAME                                     CREATED`
+`   junny-study-buckeXxxxXX                 2026-10-09`
+`   Total: 1`
+`
+` EC2 INSTANCES`
+`   NAME             INSTANCE ID           STATE      TYPE       PUBLIC IP`
+`   study-vm-01      i-0a1bXXXXXXXX   running    t3.micro   54.221.XX.XX`
+`   Total: 1`
+
+If you screenshot this for your portfolio (Day 70’s idea), mask the account ID inside the ARN first.
+
