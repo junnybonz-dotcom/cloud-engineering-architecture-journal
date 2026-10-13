@@ -1608,3 +1608,9 @@ python3 list_objects.py your-second-bucket         ` Failed: AccessDenied`
 
 The last line is the point of the exercise. The same user and the same script now succeed on one bucket and fail on the other, and the only thing that changed is the policy. If you want the broad policy back, re-attach it.
 
+**The three classic mistakes when writing this by hand:**
+
+- Putting s3:GetObject on the bare bucket ARN (it needs the /* ARN). Fails silently with AccessDenied.
+- Using "Action": "s3:*" "just to test", then forgetting to narrow it.
+- A trailing comma in the JSON. The validator catches it, so read what it says.
+
