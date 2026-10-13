@@ -1368,3 +1368,10 @@ Read it as: *deny* every S3 action on this bucket and its objects whenever the r
    * `SSLError`: the TLS certificate check failed (Day 82). Never “fix” this with `verify=False`.
 * **Catch order matters.** Put specific exceptions first and the broad ones last, the same rule as Day 22. Also, a client can fail at **creation** (`boto3.client("ec2")` raises `NoRegionError` immediately), so create clients *inside* the try.
 
+**“Expired token”, and what it means for you**
+
+* Your `study-boto3` key is a **long-term** key. It doesn’t expire. It can be deactivated or deleted, and then the error is `InvalidClientTokenId`, not “expired”.
+* Expiry happens with **temporary credentials** (roles, SSO, STS). Those carry a lifetime, and the error codes are `ExpiredToken`, `ExpiredTokenException`, or `RequestExpired`, depending on the service.
+* **Clock skew** is a lookalike: AWS rejects signed requests when your machine’s clock is too far off (`RequestTimeTooSkewed`). That’s a real risk on a VM.
+* **Codes differ by service.** S3 says `AccessDenied`, but EC2 says `UnauthorizedOperation`. A handler has to know both.
+
