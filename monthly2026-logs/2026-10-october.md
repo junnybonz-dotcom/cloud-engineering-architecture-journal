@@ -1269,3 +1269,16 @@ python3 aws_report.py
 
 If you screenshot this for your portfolio (Day 70’s idea), mask the account ID inside the ARN first.
 
+**Proving the sections fail independently**
+
+`python`
+` temporarily, inside get_buckets(): replace the s3 call with one your user isn't allowed to make`
+buckets = boto3.client("iam").list_users().get("Users", [])
+S3 BUCKETS
+  could not list buckets: AccessDenied
+
+EC2 INSTANCES
+  study-vm-01 ...   <- still prints
+
+Revert it afterward. This is the same default-deny from Days 78–79, now showing that one denial doesn’t take down the whole report.
+
