@@ -1591,3 +1591,20 @@ Two details to notice:
 * **The action name differs from the API call.** `get_bucket_encryption` is authorized by `s3:GetEncryptionConfiguration`. Leave it out and Day 81’s encryption check fails with `AccessDenied`. Tightening a policy tends to surface exactly these hidden dependencies.
 * `ListAllMyBuckets` **still shows every bucket name in the account**. It can’t be scoped. The policy limits what you can read *inside* buckets, not which names you can see.
 
+**Creating it and testing it**
+
+Console → IAM → Policies → Create policy → JSON tab → paste → Next
+Name: study-s3-read-one-bucket → Create policy
+(The editor's validator flags syntax errors and warnings. Read them.)
+
+IAM → Users → study-boto3 → Permissions:
+  remove AmazonS3ReadOnlyAccess
+  add study-s3-read-one-bucket
+  (keep AmazonEC2ReadOnlyAccess. Changes can take a few seconds to apply.)
+`bash`
+python3 aws_errors.py                              ` buckets and instances still work`
+python3 list_objects.py junny12-stuxxxxxxx9   ` works`
+python3 list_objects.py your-second-bucket         ` Failed: AccessDenied`
+
+The last line is the point of the exercise. The same user and the same script now succeed on one bucket and fail on the other, and the only thing that changed is the policy. If you want the broad policy back, re-attach it.
+
