@@ -1380,3 +1380,152 @@ Read it as: *deny* every S3 action on this bucket and its objects whenever the r
 * **Bucket-level actions** (like `s3:ListBucket`) attach to the bucket ARN. **Object-level actions** (like `s3:GetObject`) attach to the `/*` ARN. Separate statements keep each action on only the resource it applies to.
 * `s3:ListAllMyBuckets` can only use `"Resource": "*"`. It’s an account-level action and can’t be scoped to one bucket.
 
+**Worked examples**
+
+**The script**
+
+`python`
+` aws_errors.py`
+import sys
+import boto3
+from botocore.exceptions import (
+    BotoCoreError, ClientError, ConnectTimeoutError, EndpointConnectionError,
+    NoCredentialsError, NoRegionError, PartialCredentialsError,
+    ProfileNotFound, SSLError,
+)
+
+EXPIRED = {"ExpiredToken", "ExpiredTokenException", "RequestExpired"}
+BAD_CREDS = {"InvalidClientTokenId", "SignatureDoesNotMatch",
+             "UnrecognizedClientException", "AuthFailure", "InvalidAccessKeyId"}
+DENIED = {"AccessDenied", "AccessDeniedException", "UnauthorizedOperation"}
+
+
+def describe_error(e):
+    """Turn an AWS/boto3 exception into (what happened, what to try)."""
+    if isinstance(e, NoCredentialsError):
+        return ("No credentials found.",
+                "Check ~/.aws/credentials, or the AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY env vars.")
+    if isinstance(e, PartialCredentialsError):
+        return ("Credentials are incomplete.",
+                "Both the access key ID and the secret key must be set.")
+    if isinstance(e, ProfileNotFound):
+        return ("That AWS profile doesn't exist.",
+                "Check AWS_PROFILE against the [section] names in ~/.aws/credentials.")
+    if isinstance(e, NoRegionError):
+        return ("No region configured.",
+                "Add region = ... to ~/.aws/config or set AWS_DEFAULT_REGION.")
+    if isinstance(e, (EndpointConnectionError, ConnectTimeoutError)):
+        return ("Can't reach the AWS endpoint.",
+                "Check the region name for typos and your network. This can pause several seconds while boto3 retries.")
+    if isinstance(e, SSLError):
+        return ("TLS certificate check failed.",
+                "Don't disable verification. Check the system clock and CA certificates.")
+    if isinstance(e, ClientError):
+        code = e.response["Error"]["Code"]
+        if code in EXPIRED:
+            return (f"Credentials expired ({code}).",
+                    "Temporary credentials (role/SSO/STS) have a lifetime. Refresh them and rerun.")
+        if code in BAD_CREDS:
+            return (f"AWS doesn't recognize these credentials ({code}).",
+                    "Typo in a key, a deactivated or deleted key, or a stale session token.")
+        if code == "RequestTimeTooSkewed":
+            return ("This machine's clock is too far off.",
+                    "Check `date` and `timedatectl`.")
+        if code in DENIED:
+            return (f"Not permitted ({code}).",
+                    "Authentication worked, but no policy allows this action. print(e) names it.")
+        return (f"AWS returned an error: {code}.", "print(e) shows the full message.")
+    return (f"Unexpected boto3 error: {type(e).__name__}", "print(e) shows details.")
+
+
+def authenticate():
+    try:
+        return boto3.client("sts").get_caller_identity()["Arn"]
+    except (BotoCoreError, ClientError) as e:
+        what, hint = describe_error(e)
+        print(f"Cannot continue: {what}\n    -> {hint}")
+        sys.exit(1)
+
+
+def run_checked(label, func, *args):
+    """Run one section. Print a friendly message instead of crashing."""
+    try:
+        return func(*args)
+    except (BotoCoreError, ClientError) as e:
+        what, hint = describe_error(e)
+        print(f"[{label}] {what}\n    -> {hint}")
+        return None
+
+
+def list_bucket_names():
+    s3 = boto3.client("s3")
+    return sorted(b["Name"] for b in s3.list_buckets().get("Buckets", []))
+
+
+def list_instance_summaries(region=None):
+    ec2 = boto3.client("ec2", region_name=region)   # can raise NoRegionError right here
+    rows = []
+    for page in ec2.get_paginator("describe_instances").paginate():
+        for reservation in page["Reservations"]:
+            for inst in reservation["Instances"]:
+                rows.append((inst["InstanceId"], inst["State"]["Name"]))
+    return rows
+
+
+def main():
+    print(f"Authenticated as: {authenticate()}")
+
+    buckets = run_checked("S3", list_bucket_names)
+    if buckets is not None:
+        print(f"Buckets ({len(buckets)}): {', '.join(buckets) or '(none)'}")
+
+    instances = run_checked("EC2", list_instance_summaries)
+    if instances is not None:
+        print(f"Instances ({len(instances)}):")
+        for iid, state in instances:
+            print(f"  {iid}  {state}")
+
+
+if __name__ == "__main__":
+    main()
+
+`run_checked` takes `*args` (Days 16 and 20), so it can wrap any function. A normal run prints your identity, buckets, and instances, the same data as Day 82.
+
+**Breaking it safely.** Every test below uses environment variables or a throwaway edit, so your real credentials file is never touched.
+
+`bash`
+` 1. no credentials anywhere (unset any exported AWS_* vars first: env | grep AWS)`
+AWS_SHARED_CREDENTIALS_FILE=/nonexistent python3 aws_errors.py
+` Cannot continue: No credentials found.`
+`     -> Check ~/.aws/credentials, or the AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY env vars.`
+
+` 2. half a credential`
+AWS_ACCESS_KEY_ID=AKIAFAKEFAKEFAKE1234 python3 aws_errors.py
+` Cannot continue: Credentials are incomplete.`
+
+` 3. credentials that look right but aren't (fake values only, never real keys on a command line)`
+AWS_ACCESS_KEY_ID=AKIAFAKEFAKEFAKE1234 AWS_SECRET_ACCESS_KEY=notarealsecret python3 aws_errors.py
+` Cannot continue: AWS doesn't recognize these credentials (InvalidClientTokenId).`
+
+` 4. a profile that doesn't exist`
+AWS_PROFILE=nope python3 aws_errors.py
+` Cannot continue: That AWS profile doesn't exist.`
+
+` 5. no region: S3 should still work, EC2 should not`
+env -u AWS_DEFAULT_REGION AWS_CONFIG_FILE=/nonexistent python3 aws_errors.py
+` Authenticated as: arn:aws:iam::...:user/study-boto3`
+` Buckets (2): ...`
+` [EC2] No region configured.`
+`     -> Add region = ... to ~/.aws/config or set AWS_DEFAULT_REGION.`
+
+Test 5 shows the section isolation from Day 82 working. The buckets still print even though EC2 failed.
+
+A region that doesn’t exist. Temporarily change one line, run, then revert:
+
+`python`
+instances = run_checked("EC2", list_instance_summaries, "us-east-99")
+` [EC2] Can't reach the AWS endpoint.`
+`     -> Check the region name for typos and your network. This can pause several seconds ...`
+
+Some mistakes never raise anything. A region that exists but is the *wrong* one returns an empty list (Day 81), so no `try`/`except` can catch it. The defense is printing the region in your output, as the Day 82 report did
+
