@@ -1282,3 +1282,12 @@ EC2 INSTANCES
 
 Revert it afterward. This is the same default-deny from Days 78–79, now showing that one denial doesn’t take down the whole report.
 
+**Seeing that boto3 is already using HTTPS**
+
+`python`
+print(ec2.meta.endpoint_url)
+` https://ec2.us-east-1.amazonaws.com`
+print(s3.meta.endpoint_url)
+` https://s3.amazonaws.com        (region-dependent)`
+
+**Watching a TLS handshake with** `curl` (Day 34 flags, Day 13/14 grep and pipes, Day 68’s `2>81`)
