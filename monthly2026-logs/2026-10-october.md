@@ -1134,7 +1134,7 @@ EBS:  Console → EC2 → Settings (or "Account attributes") → EBS encryption
 
 **Real-world use: describe_instances is the starting point of nearly every real infrastructure script: finding every running instance that’s missing a tag, listing everything still running so it doesn’t quietly bill you (the Day 61 concern), or locating the instance to patch. The nested Reservations → Instances structure and the missing-key behavior trip up almost everyone once. Writing it defensively with .get() now saves a crash the first time a stopped instance appears in the results.                                                                                    Encryption at rest is a standard compliance checkbox, and it’s cheap to enable because there’s no meaningful performance cost. Knowing its limits matters more than knowing the toggle. “It’s encrypted” gets said as though it settles the security question, but it only defends against the storage layer being exposed, not against the credential or permission mistakes that cause most real incidents. That’s why today’s 15 minutes sits next to Days 78–79 rather than replacing them.**
 
-## October 12 (82) Combine both — one script that reports buckets and instances together, formatted cleanly. +15 min: encryption in transit — TLS/HTTPS, why the connection between your script and AWS’s API needs it too, not just the stored data.
+## October 12 (Day 82) Combine both — one script that reports buckets and instances together, formatted cleanly. +15 min: encryption in transit — TLS/HTTPS, why the connection between your script and AWS’s API needs it too, not just the stored data.
 
 **Definition**
 
@@ -1328,3 +1328,28 @@ with socket.create_connection((host, 443)) as sock:
 
 `server_hostname=host` is what ties the certificate to the name you meant to reach.
 
+**Enforcing in transit on S3: a bucket policy**
+
+`json`
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyInsecureTransport",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::junny-study-bucket-20261009",
+        "arn:aws:s3:::junny-study-bucket-20261009/*"
+      ],
+      "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+    }
+  ]
+}
+
+Read it as: *deny* every S3 action on this bucket and its objects whenever the request did **not** use TLS. Day 78’s rule that an explicit deny always wins is why this works as a guardrail, since no other policy can override it. Your read-only user can’t attach it, so just read it.
+
+**Real-world use: A single inventory script is a real tool. Audit and cost-control scripts start exactly here: list everything, flag what’s running that shouldn’t be, and notice what’s missing a tag. With free-tier limits in mind (Days 52 and 61), “show me everything I own and what state it’s in” is how you catch a forgotten instance before it bills you. The per-section error handling matters more than it looks: a report that dies entirely because one service was denied hides the information you still could have have had.                  Encryption in transit is usually on by default, and that’s the risk. People rarely turn it on, but they do turn it off, and verify=False is the usual way. A script that works around a certificate error that way will keep working while quietly accepting any server that claims to be AWS. Together with Day 81, you now have both halves: at rest protects stored bytes from someone reaching the storage layer, in transit protects them while moving. Neither helps if the credentials or permissions are wrong, which is why Days 78–79 come first.**
+
+## October 13 (Day 83) 
