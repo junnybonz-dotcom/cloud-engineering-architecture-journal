@@ -1547,3 +1547,47 @@ print(hint)
 
 You can build a `ClientError` by hand to unit-test an error path you can’t trigger on demand. Try `RequestTimeTooSkewed` and `UnauthorizedOperation` the same way.
 
+**The least-privilege S3 policy, by hand**
+
+This covers exactly what Days 79-81 used (`list_buckets`, `list_objects_v2`, `get_bucket_encryption`), and nothing else:
+
+`json`
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListAllBucketNames",
+      "Effect": "Allow",
+      "Action": "s3:ListAllMyBuckets",
+      "Resource": "*"
+    },
+    {
+      "Sid": "ReadOneBucket",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetEncryptionConfiguration"
+      ],
+      "Resource": "arn:aws:s3:::junny12-study-bucXXXXXXXXX9"
+    },
+    {
+      "Sid": "ReadObjectsInOneBucket",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::junny12-study-bucXXXXXXXXX9/*"
+    }
+  ]
+}
+
+Compare it with `AmazonS3ReadOnlyAccess`, which you opened on Day 79:
+
+	Managed `AmazonS3ReadOnlyAccess`	              Your hand-written policy
+Actions	s3:Get*, s3:List*, s3:Describe* (plus S3 Object Lambda)	4 named actions
+Buckets -	every bucket in the account	one
+Can read bucket policies and ACLs =	yes (they match Get*)	no
+
+Two details to notice:
+
+* **The action name differs from the API call.** `get_bucket_encryption` is authorized by `s3:GetEncryptionConfiguration`. Leave it out and Day 81’s encryption check fails with `AccessDenied`. Tightening a policy tends to surface exactly these hidden dependencies.
+* `ListAllMyBuckets` **still shows every bucket name in the account**. It can’t be scoped. The policy limits what you can read *inside* buckets, not which names you can see.
+
