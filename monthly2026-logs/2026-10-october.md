@@ -1614,3 +1614,6 @@ The last line is the point of the exercise. The same user and the same script no
 - Using "Action": "s3:*" "just to test", then forgetting to narrow it.
 - A trailing comma in the JSON. The validator catches it, so read what it says.
 
+**Real-world use: Most scripts that run unattended die from one of today’s errors: a rotated key, an expired session, the wrong region, or a missing permission. A handler that says “credentials expired, refresh them” instead of dumping a traceback is the difference between a ten-second fix and a ten-minute search. It also connects to Day 67. Error messages are for the person reading the log days later, so they should say what happened and what to try.    Writing the policy by hand teaches the habit that managed policies hide. Start from nothing, run the code, read the AccessDenied, add the one action it names, and repeat. The GetEncryptionConfiguration surprise is typical: the code runs, the policy looks complete, and one missing action shows up only when that code path runs. That’s why you test a tightened policy against the real scripts instead of trusting it by eye.**
+
+## October 14 (Day 84) 
