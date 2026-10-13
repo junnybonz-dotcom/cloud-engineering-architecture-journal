@@ -1310,3 +1310,21 @@ curl -vI http://54.221.XX.XX 2>&1 | grep -iE "tls|ssl|verify"
 
 Empty output means no TLS was involved at all. Your nginx serves plain HTTP on port 80, so anything sent to it crosses the network readable. Real sites also open 443 in the security group (Day 59) and install a certificate. You don’t need to do that today, but it’s the concrete gap between your VM and a production web tier.
 
+**Checking the TLS version from Python**
+
+`python`
+import socket
+import ssl
+
+host = "ec2.us-east-1.amazonaws.com"
+ctx = ssl.create_default_context()   ` verification ON by default`
+
+with socket.create_connection((host, 443)) as sock:
+    with ctx.wrap_socket(sock, server_hostname=host) as tls:
+        print(tls.version())
+        print(tls.cipher()[0])
+` TLSv1.3`
+` TLS_AES_256_GCM_SHA384    (yours may differ)`
+
+`server_hostname=host` is what ties the certificate to the name you meant to reach.
+
