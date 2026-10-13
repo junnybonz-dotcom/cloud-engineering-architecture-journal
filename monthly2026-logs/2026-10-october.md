@@ -1291,3 +1291,14 @@ print(s3.meta.endpoint_url)
 ` https://s3.amazonaws.com        (region-dependent)`
 
 **Watching a TLS handshake with** `curl` (Day 34 flags, Day 13/14 grep and pipes, Day 68’s `2>81`)
+
+`bash`
+curl -vI https://api.github.com 2>&1 | grep -iE "tls|ssl|verify"
+` * TLSv1.3 (OUT), TLS handshake, Client hello (1):`
+` * TLSv1.3 (IN), TLS handshake, Server hello (2):`
+` * SSL connection using TLSv1.3 / TLS_AES_128_GCM_SHA256`
+` *  SSL certificate verify ok.`
+` (trimmed; exact lines vary with your curl version)`
+
+The last line is the authentication property: curl checked the certificate and it was valid.
+
