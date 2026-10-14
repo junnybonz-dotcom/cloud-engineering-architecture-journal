@@ -1665,3 +1665,11 @@ If it lists any, delete them. Root should never have keys.
 Console → IAM → Policies → Create policy → JSON → paste
 Name: report-script-readonly`
 
+**Step 3: create the dedicated user**
+
+IAM → Users → Create user → name: report-script
+  (leave "console access" OFF: this identity exists only for code)
+→ Attach policies directly → report-script-readonly ONLY
+→ Create → Security credentials → Create access key → "Local code"
+→ copy both values now (the secret appears once)
+
