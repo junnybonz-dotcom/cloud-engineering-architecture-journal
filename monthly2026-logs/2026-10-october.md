@@ -1777,3 +1777,14 @@ python3 check_auth.py
 Anyone with a shell on that VM now has the role’s permissions, including any process an attacker runs there. That’s the strongest argument for keeping the role this small. Its permissions are its blast radius.
 
 **Real-world use: The script is the same file before and after. What changed is what it can do when something goes wrong: a leaked report-script key lets someone list bucket names and describe instances, where a leaked admin key would have let them do almost anything. That is what least privilege buys. It also gives you a way to audit. When each job has its own identity, “Last used” and the logs tell you exactly which script did what, and you can revoke one without breaking the others. Shared credentials make both impossible.                                          Rotating by swapping in a new key, checking the ARN, deactivating the old one, and only then deleting it is the standard careful sequence. Skipping the verify step is how people lock themselves out, or leave an old key alive for years.**
+
+**Week 2 review (Days 78-84)**
+* **78:** boto3 installed, credentials configured, `get_caller_identity()` as the “who am I” check. IAM basics: users, roles, policies, default deny.
+* **79:** `list_buckets()`, and least privilege with a broad vs. scoped policy side by side.
+* **80:** `list_objects_v2` with prefixes and pagination. Shared responsibility model.
+* **81:** `describe_instances()` and its nested response. Encryption at rest.
+* **82:** one combined report with per-section error isolation. Encryption in transit, TLS, and why `verify=False` is never the fix.
+* **83:** error handling for credential, region, and token failures. A hand-written read-only policy.
+* **84:** the policy attached to a dedicated identity, the script re-run under it, the old key retired. The role version for the VM.
+
+## October 15 (Day 85) 
