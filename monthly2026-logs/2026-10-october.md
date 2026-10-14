@@ -1626,3 +1626,11 @@ The last line is the point of the exercise. The same user and the same script no
 * **Retire, don’t just add:** a new key next to an old one that’s still active is not progress. You deactivate the old one, confirm nothing broke, then delete it.
 * **Policy scope:** `ec2:DescribeInstances` and `s3:ListAllMyBuckets` can’t be limited to specific resources (they need `"Resource": "*"`). The scoping *you* can do is the specific action list and the one-bucket ARN.
 
+**Worked examples**
+
+**Step 1: confirm root has no access keys**
+
+Console → account name (top right) → Security credentials
+→ "Access keys" section should be empty.
+If it lists any, delete them. Root should never have keys.
+
