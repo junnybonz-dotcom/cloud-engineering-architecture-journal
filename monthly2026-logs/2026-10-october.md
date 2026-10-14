@@ -1757,3 +1757,22 @@ python3 check_auth.py
 
 Then edit `~/.aws/credentials` so nothing relies on the old key. Either move the new key under `[default]`, or delete the old `[default]` block and always use `AWS_PROFILE`. Re-run, confirm it works, and after a day or two with nothing broken, **delete** the inactive key. Inactive is recoverable and deleted isn’t, which is why that order is the safe one.
 
+**The role version, for the VM (this is the real-world form of the week)**
+
+IAM → Roles → Create role → AWS service → EC2
+→ attach report-script-readonly → name: report-script-role
+
+EC2 → Instances → your VM → Actions → Security → Modify IAM role
+→ choose report-script-role → Update
+`bash`
+` SSH into the VM (Day 56). Don't copy ANY credentials file onto it.`
+ls ~/.aws/credentials
+` ls: cannot access '~/.aws/credentials': No such file or directory`
+
+python3 check_auth.py
+` Authenticated as: arn:aws:sts::123456789012:assumed-role/report-script-role/i-0a1b2c3d4e5f67890`
+
+`assumed-role/...` instead of `user/...` is Day 78’s role concept working. boto3 fetched temporary credentials from the instance on its own, and refreshes them before they expire. There is nothing stored on disk to steal. The VM may need a region, which is config rather than a secret: set `AWS_DEFAULT_REGION` or add a `~/.aws/config`.
+
+Anyone with a shell on that VM now has the role’s permissions, including any process an attacker runs there. That’s the strongest argument for keeping the role this small. Its permissions are its blast radius.
+
