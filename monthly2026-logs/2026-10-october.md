@@ -1634,3 +1634,34 @@ Console → account name (top right) → Security credentials
 → "Access keys" section should be empty.
 If it lists any, delete them. Root should never have keys.
 
+**Step 2: a policy for what the script actually does**
+
+`aws_report.py` and `list_objects.py` call `sts:GetCallerIdentity` (needs no permission), `s3:ListAllMyBuckets`, `s3:ListBucket`, and `ec2:DescribeInstances`. They never download anything, so Day 83’s `s3:GetObject` statement can go. Least privilege means trimming even what looked reasonable yesterday.
+
+`json`
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListBucketNames",
+      "Effect": "Allow",
+      "Action": "s3:ListAllMyBuckets",
+      "Resource": "*"
+    },
+    {
+      "Sid": "ListOneBucket",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::junny-study-bucket-20261009"
+    },
+    {
+      "Sid": "DescribeInstances",
+      "Effect": "Allow",
+      "Action": "ec2:DescribeInstances",
+      "Resource": "*"
+    }
+  ]
+}
+Console → IAM → Policies → Create policy → JSON → paste
+Name: report-script-readonly`
+
