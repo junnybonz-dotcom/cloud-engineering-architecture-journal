@@ -1708,10 +1708,40 @@ AWS_PROFILE=report-script python3 aws_report.py
 
 The two ARNs differing is the proof the swap happened. If you’d rather select the profile in code:
 
-python
+`python`
 session = boto3.Session(profile_name="report-script")
 s3 = session.client("s3")
 ec2 = session.client("ec2")
 
 The environment-variable route is usually better, because the same file runs under whichever identity it’s launched with, and no profile name is hardcoded.
+
+**Step 6: prove the new identity is actually narrower**
+
+`bash`
+AWS_PROFILE=report-script python3 list_objects.py junny-study-bucket-20261009
+` works (s3:ListBucket on this bucket)`
+
+AWS_PROFILE=report-script python3 list_objects.py your-second-bucket
+` Failed: AccessDenied`
+`python`
+import boto3
+from botocore.exceptions import ClientError
+
+session = boto3.Session(profile_name="report-script")
+
+for label, call in [
+    ("get_bucket_encryption", lambda: session.client("s3").get_bucket_encryption(Bucket="junny-study-bucket-20261009")),
+    ("describe_volumes",      lambda: session.client("ec2").describe_volumes()),
+    ("iam list_users",        lambda: session.client("iam").list_users()),
+]:
+    try:
+        call()
+        print(label, "-> allowed")
+    except ClientError as e:
+        print(label, "->", e.response["Error"]["Code"])
+` get_bucket_encryption -> AccessDenied`
+` describe_volumes      -> UnauthorizedOperation`
+` iam list_users        -> AccessDenied`
+
+Day 81’s encryption-check snippets now fail, and that’s the trade you made when you trimmed the policy. If you want them back, add `s3:GetEncryptionConfiguration` and `ec2:DescribeVolumes`, and nothing more. The two different error codes for S3 and EC2 are the Day 83 point about service-specific codes.
 
