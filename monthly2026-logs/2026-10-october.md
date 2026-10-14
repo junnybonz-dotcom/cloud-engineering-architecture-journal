@@ -1616,4 +1616,13 @@ The last line is the point of the exercise. The same user and the same script no
 
 **Real-world use: Most scripts that run unattended die from one of today’s errors: a rotated key, an expired session, the wrong region, or a missing permission. A handler that says “credentials expired, refresh them” instead of dumping a traceback is the difference between a ten-second fix and a ten-minute search. It also connects to Day 67. Error messages are for the person reading the log days later, so they should say what happened and what to try.    Writing the policy by hand teaches the habit that managed policies hide. Start from nothing, run the code, read the AccessDenied, add the one action it names, and repeat. The GetEncryptionConfiguration surprise is typical: the code runs, the policy looks complete, and one missing action shows up only when that code path runs. That’s why you test a tightened policy against the real scripts instead of trusting it by eye.**
 
-## October 14 (Day 84) 
+## October 14 (Day 84) Apply it for real — attach that read-only policy to a dedicated IAM user/role in the console instead of using your root/admin credentials, swap your script to use those credentials, confirm it still works. Review the week: your script now runs under the same least-privilege principle you spent all week learning about.
+
+**Definition**
+* **Dedicated identity:** one IAM identity per job, holding only what that job needs. A shared “do everything” user means every script inherits the permissions of the most demanding one.
+* **User vs. role (Day 78):** a user has long-term keys. A role hands out temporary credentials. For code on your laptop, a user with keys is the usual choice. For code on your EC2 instance, a role is better because no keys sit on disk.
+* **Named profile:** a `[section]` in `~/.aws/credentials`. `AWS_PROFILE=name `makes boto3 use it, so **the script’s code doesn’t change at all**. Only the identity running it does.
+* **The credential chain (Day 78)** has an order, and `[default]` is what boto3 uses when you don’t ask for a profile. If `[default]` still holds your old key, you can believe you’ve swapped while you’re still on the old identity. `get_caller_identity` is how you check.
+* **Retire, don’t just add:** a new key next to an old one that’s still active is not progress. You deactivate the old one, confirm nothing broke, then delete it.
+* **Policy scope:** `ec2:DescribeInstances` and `s3:ListAllMyBuckets` can’t be limited to specific resources (they need `"Resource": "*"`). The scoping *you* can do is the specific action list and the one-bucket ARN.
+
