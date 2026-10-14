@@ -1745,3 +1745,15 @@ for label, call in [
 
 Day 81’s encryption-check snippets now fail, and that’s the trade you made when you trimmed the policy. If you want them back, add `s3:GetEncryptionConfiguration` and `ec2:DescribeVolumes`, and nothing more. The two different error codes for S3 and EC2 are the Day 83 point about service-specific codes.
 
+**Step 7: retire the old key, in this order**
+
+IAM → Users → study-boto3 → Security credentials
+  → check "Last used": it shows when and which service touched this key
+  → Actions → Make inactive   (not delete yet)
+`bash`
+python3 check_auth.py
+` now fails: [default] still points at the inactive key`
+` (the failure is the point: it shows [default] was still using the old identity)`
+
+Then edit `~/.aws/credentials` so nothing relies on the old key. Either move the new key under `[default]`, or delete the old `[default]` block and always use `AWS_PROFILE`. Re-run, confirm it works, and after a day or two with nothing broken, **delete** the inactive key. Inactive is recoverable and deleted isn’t, which is why that order is the safe one.
+
