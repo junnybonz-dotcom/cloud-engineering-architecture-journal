@@ -1694,3 +1694,24 @@ region = us-east-1
 
 Note the `profile` prefix in the **config file**. It’s required there but not in `credentials`, and forgetting it is a common cause of `ProfileNotFound`. The credentials file should still be `chmod 600`.
 
+**Step 5: run the same script, unchanged, under the new identity**
+
+`bash`
+python3 check_auth.py
+` Authenticated as: arn:aws:iam::123456789012:user/study-boto3      <- old identity`
+
+AWS_PROFILE=report-script python3 check_auth.py
+` Authenticated as: arn:aws:iam::123456789012:user/report-script    <- new identity`
+
+AWS_PROFILE=report-script python3 aws_report.py
+` (the same report as Day 82. Buckets and instances still appear.)`
+
+The two ARNs differing is the proof the swap happened. If you’d rather select the profile in code:
+
+python
+session = boto3.Session(profile_name="report-script")
+s3 = session.client("s3")
+ec2 = session.client("ec2")
+
+The environment-variable route is usually better, because the same file runs under whichever identity it’s launched with, and no profile name is hardcoded.
+
