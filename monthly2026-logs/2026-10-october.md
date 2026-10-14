@@ -1673,3 +1673,24 @@ IAM → Users → Create user → name: report-script
 → Create → Security credentials → Create access key → "Local code"
 → copy both values now (the secret appears once)
 
+**Step 4: add it as a named profile, leaving the old keys alone for now**
+
+`ini`
+` ~/.aws/credentials`
+[default]
+aws_access_key_id = (old study-boto3 key, unchanged for now)
+aws_secret_access_key = (old secret)
+
+[report-script]
+aws_access_key_id = AKIA...NEW_KEY_ID
+aws_secret_access_key = NEW_SECRET
+ini
+` ~/.aws/config`
+[default]
+region = us-east-1
+
+[profile report-script]
+region = us-east-1
+
+Note the `profile` prefix in the **config file**. It’s required there but not in `credentials`, and forgetting it is a common cause of `ProfileNotFound`. The credentials file should still be `chmod 600`.
+
