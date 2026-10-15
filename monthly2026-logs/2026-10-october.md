@@ -1793,3 +1793,10 @@ Anyone with a shell on that VM now has the role’s permissions, including any p
 
 Today is a measurement day, so there’s nothing new to learn. The risk is rating yourself by how a topic *feels*. Recognizing an answer when you see it feels the same as knowing it, which is why “I’ve seen this a hundred times” turns into a blank page. So each topic below has a **cold probe**, a one-line task. Attempt it on paper or in a scratch file, with no notes and no earlier lessons open, then rate what you actually produced.
 
+**The scale**
+
+**5:** wrote it correctly, from scratch, and could explain why it works.
+**4:** correct, with a minor slip (syntax, flag order) you’d catch on your own.
+**3:** needed a hint, or got the idea but not the exact form.
+**2:** recognized the answer once you saw it, but couldn’t produce it.
+**1:** don’t remember it.
