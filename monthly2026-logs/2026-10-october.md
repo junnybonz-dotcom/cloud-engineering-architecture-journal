@@ -1854,3 +1854,10 @@ Cloud
 CS
 31. Big-O: `O(1)` vs `O(n)`, list vs dict, what the hashmap costs in memory
 
+**Turning ratings into a plan**
+1. **List your 2-or-lowers.** If there are more than four, rank them rather than trying to fix everything.
+2. **Rank by foundation.** Some topics are load-bearing. Permissions underlies SSH keys and IAM, and keys underlie joins. Fix the one other things rest on first.
+3. **Rank by capstone need.** The cold redo covers fetch, insert, error handling, cron, and querying. Items 5, 10-12, 16-18, and 20-22 matter most for it.
+4. **If nothing is 2 or lower, don’t trust that yet.** Re-test your 3s with a why question instead of a what question (“why does LEFT JOIN produce NULLs?”). Honest self-audits almost always turn up a couple of real gaps.
+5. **Pick two or three targets** and carry the rest forward. Fixing a couple of gaps properly beats skimming ten.
+
