@@ -1861,3 +1861,13 @@ CS
 4. **If nothing is 2 or lower, don’t trust that yet.** Re-test your 3s with a why question instead of a what question (“why does LEFT JOIN produce NULLs?”). Honest self-audits almost always turn up a couple of real gaps.
 5. **Pick two or three targets** and carry the rest forward. Fixing a couple of gaps properly beats skimming ten.
 
+**Real-world use: Knowing precisely where your gaps are is a working skill. In interviews and on the job, “I haven’t used that yet, here’s how I’d find out” lands better than bluffing, and you can only say it if you know which topics those are. The recall-versus-recognition split is also the reason review days beat re-reading: reading feels productive, but retrieval is what builds the memory.**
+
+**Practice**
+1. Copy the list into your journal.
+2. Attempt each probe on paper, cold, with a rough time limit of 60-90 seconds each.
+3. Rate each by what you produced, then mark everything at 2 or lower.
+4. Pick your two or three targets using the ranking above.
+5. Don’t start fixing anything today. Measuring comes first, and the fixing starts tomorrow.
+
+## October 16 (Day 86)
