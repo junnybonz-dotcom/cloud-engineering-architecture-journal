@@ -1787,4 +1787,9 @@ Anyone with a shell on that VM now has the role’s permissions, including any p
 * **83:** error handling for credential, region, and token failures. A hand-written read-only policy.
 * **84:** the policy attached to a dedicated identity, the script re-run under it, the old key retired. The role version for the VM.
 
-## October 15 (Day 85) 
+## October 15 (Day 85) Self-audit — list every topic since August (permissions, regex, loops, joins, SSH, boto3, everything), rate your confidence 1–5 on each, cold. No notes. Whatever gets a 2 or lower is your real target for the week.
+
+**Definition**
+
+Today is a measurement day, so there’s nothing new to learn. The risk is rating yourself by how a topic *feels*. Recognizing an answer when you see it feels the same as knowing it, which is why “I’ve seen this a hundred times” turns into a blank page. So each topic below has a **cold probe**, a one-line task. Attempt it on paper or in a scratch file, with no notes and no earlier lessons open, then rate what you actually produced.
+
