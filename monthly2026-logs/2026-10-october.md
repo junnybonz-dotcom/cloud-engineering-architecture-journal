@@ -1807,3 +1807,50 @@ Attempt: wrote 750 instantly, wrote chmod +x correctly, wrote "chown group:user 
 Rating: 4. Right idea, swapped the order (it's user:group).
 
 The rating comes from the attempt, not from the feeling that you know permissions.
+
+**The audit (copy this into your journal, then fill in the ratings)**
+
+**Linux**
+
+1. Permissions: `rwxr-x---` as octal, `chmod +x`, `chown user:group`
+2. grep, pipes, redirection: case-insensitive recursive search, `>` vs `>>`, a 3-command pipe that counts error lines excluding timeouts
+3. Processes: `ps`/`top`, `kill` vs `kill -9`, `&`/`jobs`/`fg`
+4. `find`/`df`/`du`: find every `.log` file, then find what’s eating the disk
+5. cron: a 6:30 PM Friday schedule, plus why a script that works over SSH can fail under cron
+6. Env vars: `export` vs plain assignment, `.env` and `.gitignore`
+7. Bash scripting: `$1`, an `if` with correct bracket spacing, a `for` loop
+8. SSH: the `ssh-keygen` edss25519 command with a comment, private vs public key, “timed out” vs “permission denied”
+9. `systemctl`/`journalctl`: restart, `enable --now`, follow a service’s logs
+
+Python
+10. Functions: default args, `*args`, `return` vs print
+11. File I/O: `with open`, `"w"` vs `"a"`, reading line by line
+12. `try`/`except`/`finally`: specific exceptions, and why a bare `except: pass `is worse than a crash
+13. `re`: `findall` with groups, named groups, `search` vs `match`
+14. `os`/`sys`/`datetime`: `sys.argv`, `os.path`, `strftime`
+15. Classes: `__init__`, `self`, inheritance with `super()`
+16. `json`: `dumps` vs `dump` vs `loads` vs `load`
+17. `venv` + `requests`: create, activate, `raise_for_status()`, parse nested JSON
+18. `sqlite3` from Python: parameterized insert, `commit()`, why `?` instead of f-strings
+19. boto3: the credentials chain, `ClientError` vs `BotoCoreError`, paginators
+
+SQL
+20. `SELECT`/`WHERE`: `LIKE`, `IN`, `BETWEEN`, clause order
+21. Keys and `JOIN`: PK/FK, `PRAGMA foreign_keys`, `INNER` vs `LEFT`, find users with no orders
+22. `GROUP BY`/`HAVING`: why `WHERE COUNT(*) > 2` fails
+
+Networking
+23. OSI’s 7 layers in one line each, and the TCP/IP mapping
+24. Ports, IPs, DNS: `10.0.0.1` in binary, `ss -tulpn`, `LISTEN` vs `ESTABLISHED`
+25. Security group vs `ss`: why a port can be `LISTEN` and still unreachable
+
+Cloud
+26. IAM: user vs role vs policy, default deny, write a one-action policy by hand
+27. Shared responsibility, plus encryption at rest vs in transit
+28. Regions/AZs, stop vs terminate, the billing alert, free-tier checks
+29. Object vs block storage, the three-question framework, durability vs availability
+30. 3-tier architecture, and how security scoping differs per tier
+
+CS
+31. Big-O: `O(1)` vs `O(n)`, list vs dict, what the hashmap costs in memory
+
