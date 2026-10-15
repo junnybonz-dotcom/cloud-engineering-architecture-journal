@@ -1800,3 +1800,10 @@ Today is a measurement day, so there’s nothing new to learn. The risk is ratin
 **3:** needed a hint, or got the idea but not the exact form.
 **2:** recognized the answer once you saw it, but couldn’t produce it.
 **1:** don’t remember it.
+
+**Worked example (a filled-in row, so the scale is concrete)**
+Permissions — probe: write rwxr-x--- as octal; add execute with chmod; chown owner+group
+Attempt: wrote 750 instantly, wrote chmod +x correctly, wrote "chown group:user file"
+Rating: 4. Right idea, swapped the order (it's user:group).
+
+The rating comes from the attempt, not from the feeling that you know permissions.
