@@ -1957,3 +1957,6 @@ print(expensive_lines(cart, 20))
 
 That last shape (build an empty result, loop, test, append, return) is what most of your capstone code is. Read example 5 slowly until you can say what each line does.
 
+**Real-world use: Most real scripts are “get a list of records, loop over them, decide something about each, return or store the result.” The capstone’s fetch_weather produced a dict, insert_weather consumed one, and describe_instances returned a list of dicts you looped over. If you can write that skeleton from a blank file, API and database work becomes a matter of filling in details.**
+
+## October 17 (Day 87) 
