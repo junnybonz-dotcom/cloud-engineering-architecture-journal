@@ -1889,3 +1889,22 @@ I’d start with **Python core** (conditionals, loops, lists, dicts, functions),
 * `for item in collection`: runs the block once per item. `while condition:` repeats until the condition is false, so something inside must change it.
 * **Function:** `def name(params)`: bundles reusable code. `return` sends a value back to the caller. Without it, the function returns `None`, and `print` is not the same thing as `return`.
 
+**Worked examples**
+
+I’m using a shopping-cart theme so the practice problem below isn’t a copy of anything here.
+
+1. **Variables and a condition**
+
+`python`
+price = 20.0
+quantity = 3
+total = price * quantity
+
+if total > 100:
+    print("free shipping")
+elif total > 50:
+    print("discount applies")
+else:
+    print("standard")
+` discount applies (total is 60.0)`
+
