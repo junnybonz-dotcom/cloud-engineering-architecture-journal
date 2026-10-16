@@ -1918,4 +1918,12 @@ print(len(items))      ` 3`
 for item in items:
     print(item.upper())
 
-    
+3. **A dict, and its trap**
+
+`python`
+product = {"name": "pen", "price": 1.5, "stock": 40}
+print(product["price"])               ` 1.5`
+print(product.get("color", "none"))   ` none  (safe)`
+` product["color"]  -> KeyError, so use .get() when a key might be missing`
+product["stock"] -= 1                 ` modify in place: 39`
+
