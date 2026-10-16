@@ -1927,3 +1927,12 @@ print(product.get("color", "none"))   ` none  (safe)`
 ` product["color"]  -> KeyError, so use .get() when a key might be missing`
 product["stock"] -= 1                 ` modify in place: 39`
 
+4. **A function with return**
+
+`python`
+def line_total(price, quantity=1):
+    return price * quantity
+
+print(line_total(1.5, 4))   ` 6.0`
+print(line_total(1.5))      ` 1.5`
+
