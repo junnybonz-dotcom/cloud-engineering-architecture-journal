@@ -1908,3 +1908,14 @@ else:
     print("standard")
 ` discount applies (total is 60.0)`
 
+2. **A list and a loop**
+
+`python`
+items = ["pen", "book", "lamp"]
+print(items[0])        ` pen  (first item is position 0)`
+print(len(items))      ` 3`
+
+for item in items:
+    print(item.upper())
+
+    
