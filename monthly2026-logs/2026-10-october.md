@@ -1936,3 +1936,24 @@ def line_total(price, quantity=1):
 print(line_total(1.5, 4))   ` 6.0`
 print(line_total(1.5))      ` 1.5`
 
+5. **All of it together: a list of dicts, a loop, a condition, a function**
+
+`python`
+cart = [
+    {"name": "pen", "price": 1.5, "qty": 4},
+    {"name": "book", "price": 12.0, "qty": 1},
+    {"name": "lamp", "price": 30.0, "qty": 2},
+]
+
+def expensive_lines(cart, limit):
+    result = []
+    for line in cart:
+        if line["price"] * line["qty"] > limit:
+            result.append(line["name"])
+    return result
+
+print(expensive_lines(cart, 20))
+` ['lamp']`
+
+That last shape (build an empty result, loop, test, append, return) is what most of your capstone code is. Read example 5 slowly until you can say what each line does.
+
