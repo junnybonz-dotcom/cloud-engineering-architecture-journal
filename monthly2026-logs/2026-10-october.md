@@ -1870,4 +1870,13 @@ CS
 4. Pick your two or three targets using the ranking above.
 5. Don’t start fixing anything today. Measuring comes first, and the fixing starts tomorrow.
 
-## October 16 (Day 86)
+## October 16 (Day 86) Weakest topic #1 — re-study it from scratch as if you’d never seen it, then rebuild the smallest possible example yourself (not copy-pasted from old work).  The scale confidence of 1 is Linux, Python, SQL and Networking except  Cloud and CS
+
+Rating almost everything a 1 on a cold probe is normal after a single pass through this much material. Recall is hard to build, and it doesn’t mean the last three months didn’t land. It does mean you can’t fix four domains in one week, so you need an order.
+
+I’d start with **Python core** (conditionals, loops, lists, dicts, functions), for two reasons. The capstone is a Python program, and `requests`, `sqlite3`, `json`, and `boto3` are all this same toolkit applied to something else. If you can’t write a loop over a list of dicts cold, none of them will feel solid. Here is the order I’d suggest for the rest of the week; tell me if you’d rather swap anything:
+
+* **Oct 17:** Python file I/O, `try`/`except`, `json`
+* **Oct 18:** SQL (`SELECT`, `WHERE`, `JOIN`, `GROUP BY`) via `sqlite3`
+* **Oct 19:** Linux (permissions, grep and pipes, cron, SSH)
+* **Oct 20-21:** networking basics, then the capstone cold
