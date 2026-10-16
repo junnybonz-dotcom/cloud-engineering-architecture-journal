@@ -1880,3 +1880,12 @@ I’d start with **Python core** (conditionals, loops, lists, dicts, functions),
 * **Oct 18:** SQL (`SELECT`, `WHERE`, `JOIN`, `GROUP BY`) via `sqlite3`
 * **Oct 19:** Linux (permissions, grep and pipes, cron, SSH)
 * **Oct 20-21:** networking basics, then the capstone cold
+
+**Definition (from scratch, no assumed knowledge)**
+* **Variable:** a name pointing at a value. `count = 3`. Types you’ll use: `int`, `float`, `str`, `bool`.
+* `if` / `elif` / `else`: runs the first block whose condition is true and skips the rest. Indentation (4 spaces) defines what’s inside the block.
+* **List:** an ordered collection, `[a, b, c]`, accessed by position starting at **0**. `len(x)` counts items.
+* **Dict:** key-value pairs, `{"name": "web-01"}`, accessed by key. A missing key raises `KeyError`; `.get(key, default)` doesn’t.
+* `for item in collection`: runs the block once per item. `while condition:` repeats until the condition is false, so something inside must change it.
+* **Function:** `def name(params)`: bundles reusable code. `return` sends a value back to the caller. Without it, the function returns `None`, and `print` is not the same thing as `return`.
+
