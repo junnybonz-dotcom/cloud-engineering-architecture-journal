@@ -2053,3 +2053,6 @@ for r in records:
 print(errors[-1]["message"])
 ` timeout calling api      (-1 is the last item, from Day 3)`
 
+**Real-world use: Real data is text first and structure second. The step from “a string in a file” to “a dict I can query” is the same one your capstone did when it trimmed the API response down to three fields before inserting them into SQLite. Parsers also meet bad input all the time (blank lines, truncated lines, a header row), so “skip it, count it, keep going” is the right default. A crash on line 40,000 of a log file is much worse.**
+
+## October 18 (Day 88)
