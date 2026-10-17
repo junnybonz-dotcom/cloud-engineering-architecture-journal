@@ -2027,3 +2027,18 @@ records = parse_all(raw_lines)
 print(f"{len(records)} valid, {len(raw_lines) - len(records)} skipped")
 ` 4 valid, 2 skipped`
 
+4. **Count by level (yesterday’s accumulator pattern, new data)**
+
+`python`
+def count_levels(records):
+    counts = {}
+    for r in records:
+        level = r["level"]
+        counts[level] = counts.get(level, 0) + 1
+    return counts
+
+print(count_levels(records))
+` {'INFO': 1, 'ERROR': 2, 'WARNING': 1}`
+
+`counts.get(level, 0)` returns 0 the first time a level appears, so `+ 1` works without a `KeyError`.\
+
