@@ -2002,3 +2002,28 @@ print(parse_line("2026-10-17 09:15:02 ERROR disk full"))
 print(parse_line("garbage"))
 ` None`
 
+3. **Parse a whole list, skipping the junk**
+
+`python`
+raw_lines = [
+    "2026-10-17 09:01:10 INFO service started",
+    "2026-10-17 09:15:02 ERROR disk full on web-02",
+    "",
+    "2026-10-17 09:20:45 WARNING cpu high on db-01",
+    "garbage",
+    "2026-10-17 09:31:09 ERROR timeout calling api",
+]
+
+def parse_all(lines):
+    records = []
+    for line in lines:
+        record = parse_line(line)
+        if record is None:
+            continue
+        records.append(record)
+    return records
+
+records = parse_all(raw_lines)
+print(f"{len(records)} valid, {len(raw_lines) - len(records)} skipped")
+` 4 valid, 2 skipped`
+
