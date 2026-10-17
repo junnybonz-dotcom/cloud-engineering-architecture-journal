@@ -1987,3 +1987,18 @@ date, clock, level, message = parts   ` unpack four values into four names`
 
 The `3` stops the splitting after three spaces, so the message keeps its own spaces.
 
+2. **Turn it into a dict, and refuse bad input**
+
+`python`
+def parse_line(line):
+    parts = line.strip().split(" ", 3)
+    if len(parts) < 4:
+        return None
+    date, clock, level, message = parts
+    return {"date": date, "clock": clock, "level": level, "message": message}
+
+print(parse_line("2026-10-17 09:15:02 ERROR disk full"))
+` {'date': '2026-10-17', 'clock': '09:15:02', 'level': 'ERROR', 'message': 'disk full'}`
+print(parse_line("garbage"))
+` None`
+
