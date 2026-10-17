@@ -1973,3 +1973,17 @@ Three small additions to yesterday’s toolkit:
 
 You also use patterns you already have: `continue` to skip a bad item, `return None` when a function has nothing valid to return, and a dict as an **accumulator** for counting (yesterday’s `count_by_status`).
 
+**Worked examples**
+
+1. **Split one line into fields**
+
+`python`
+line = "2026-10-17 09:15:02 ERROR disk full on web-02"
+parts = line.strip().split(" ", 3)
+print(parts)
+` ['2026-10-17', '09:15:02', 'ERROR', 'disk full on web-02']`
+
+date, clock, level, message = parts   ` unpack four values into four names`
+
+The `3` stops the splitting after three spaces, so the message keeps its own spaces.
+
