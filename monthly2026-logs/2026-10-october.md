@@ -2042,3 +2042,14 @@ print(count_levels(records))
 
 `counts.get(level, 0)` returns 0 the first time a level appears, so `+ 1` works without a `KeyError`.\
 
+5. **Pull out one slice of the data**
+
+`python`
+errors = []
+for r in records:
+    if r["level"] == "ERROR":
+        errors.append(r)
+
+print(errors[-1]["message"])
+` timeout calling api      (-1 is the last item, from Day 3)`
+
