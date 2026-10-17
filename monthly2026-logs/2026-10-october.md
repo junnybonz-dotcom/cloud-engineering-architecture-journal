@@ -1959,4 +1959,17 @@ That last shape (build an empty result, loop, test, append, return) is what most
 
 **Real-world use: Most real scripts are “get a list of records, loop over them, decide something about each, return or store the result.” The capstone’s fetch_weather produced a dict, insert_weather consumed one, and describe_instances returned a list of dicts you looped over. If you can write that skeleton from a blank file, API and database work becomes a matter of filling in details.**
 
-## October 17 (Day 87) 
+## October 17 (Day 87) Weakest topic #1, applied cold — use it in a slightly different context than you originally learned it (e.g. if it’s JOINs, query a different table pair; if it’s regex, match a pattern you haven’t tried before).
+
+Yesterday’s practice used server and cart dicts that were already structured. Today the data arrives as **raw text**, the way logs and CSV files really come, and you turn it into structure yourself. The skills are the same, so a shaky one will show up as a bug today. This follows your roadmap’s version of today, so file I/O and `json` can wait until later this week.
+
+**Definition**
+
+Three small additions to yesterday’s toolkit:
+
+* `text.split(sep)` breaks a string into a list at each separator. `"a,b,c".split(",")` gives `["a", "b", "c"]`. A second argument caps the splits, so `"a b c d".split(" ", 2)` gives `["a", "b", "c d"]`.
+* `text.strip()` removes whitespace and newlines from both ends.
+* `int("4")` / `float("1.50")` convert a string to a number. Text from a file or log is always a string until you convert it, so `"4" * 2` is `"44"`, not `8`.
+
+You also use patterns you already have: `continue` to skip a bad item, `return None` when a function has nothing valid to return, and a dict as an **accumulator** for counting (yesterday’s `count_by_status`).
+
