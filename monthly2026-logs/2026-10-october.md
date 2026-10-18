@@ -2155,3 +2155,14 @@ run("7. LEFT JOIN: books nobody borrowed", """
 
 **Why query 4 works.** The `LEFT JOIN` keeps Dev even though Dev has no loans, and fills Dev’s `loans` columns with `NULL`. `WHERE loans.id IS NULL` then keeps exactly those rows. An `INNER JOIN` would have dropped Dev before you could find them.
 
+**Traps to hit on purpose, once, so you recognize them:**
+
+`python`
+` a JOIN with no ON multiplies rows (4 members x 5 loans)`
+print(conn.execute("SELECT COUNT(*) FROM members JOIN loans").fetchone())   # (20,)
+
+` an aggregate in WHERE is an error about misuse of an aggregate`
+` conn.execute("SELECT member_id FROM loans WHERE COUNT(*) > 1")`
+
+` = NULL is never true, so this returns nothing`
+print(conn.execute("SELECT * FROM loans WHERE book_id = NULL").fetchall())  # []
