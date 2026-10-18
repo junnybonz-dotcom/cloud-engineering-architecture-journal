@@ -2166,3 +2166,7 @@ print(conn.execute("SELECT COUNT(*) FROM members JOIN loans").fetchone())   # (2
 
 ` = NULL is never true, so this returns nothing`
 print(conn.execute("SELECT * FROM loans WHERE book_id = NULL").fetchall())  # []
+
+**Real-world use: Most “report” requests are one of these shapes: rows matching a condition (WHERE), the same thing across two tables (JOIN), a count or total per category (GROUP BY), or the things that have no match (LEFT JOIN ... IS NULL). That last one, finding customers with no orders or files with no owner, is the question inner joins can’t answer, and it comes up constantly. Your capstone used only a single table, so this is the part that real databases need on top of it.**
+
+## October 19 (Day 89) 
