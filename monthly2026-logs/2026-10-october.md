@@ -2077,3 +2077,36 @@ print(errors[-1]["message"])
 
 That order explains why `WHERE COUNT(*) > 1` fails. At step 2, nothing has been counted yet, so counts can only be filtered at step 4.
 
+**Worked examples**
+
+One runnable file, using an in-memory database so nothing is left on disk. Library theme, which differs from your shop data:
+
+`python`
+` library.py`
+import sqlite3
+
+conn = sqlite3.connect(":memory:")
+conn.execute("PRAGMA foreign_keys = ON")
+conn.executescript("""
+CREATE TABLE members (id INTEGER PRIMARY KEY, name TEXT NOT NULL);
+CREATE TABLE books   (id INTEGER PRIMARY KEY, title TEXT NOT NULL, genre TEXT);
+CREATE TABLE loans (
+    id INTEGER PRIMARY KEY,
+    member_id INTEGER, book_id INTEGER, days INTEGER,
+    FOREIGN KEY (member_id) REFERENCES members(id),
+    FOREIGN KEY (book_id)   REFERENCES books(id)
+);
+INSERT INTO members (name) VALUES ('Ana'), ('Ben'), ('Cara'), ('Dev');
+INSERT INTO books (title, genre) VALUES
+    ('Dune','scifi'), ('Emma','classic'), ('Neuromancer','scifi'), ('Ulysses','classic');
+INSERT INTO loans (member_id, book_id, days) VALUES
+    (1,1,14), (1,3,7), (2,1,21), (3,2,10), (1,2,5);
+""")
+
+def run(label, sql, params=()):
+    print(f"\n{label}")
+    for row in conn.execute(sql, params):
+        print("  ", row)
+
+Add each query below after the setup and run `python3 library.py`.
+
