@@ -2055,4 +2055,25 @@ print(errors[-1]["message"])
 
 **Real-world use: Real data is text first and structure second. The step from “a string in a file” to “a dict I can query” is the same one your capstone did when it trimmed the API response down to three fields before inserting them into SQLite. Parsers also meet bad input all the time (blank lines, truncated lines, a header row), so “skip it, count it, keep going” is the right default. A crash on line 40,000 of a log file is much worse.**
 
-## October 18 (Day 88)
+## October 18 (Day 88) Weakest topic #2 — same re-study-from-scratch approach.
+
+**Definition (from scratch)**
+* **Table, row, column:** a table holds one kind of thing, each row is one record, and each column is one attribute of every record.
+* **Primary key (PK):** a column whose value is unique per row (`id`). A **foreign key (FK)** is a column holding another table’s PK, which is how rows in different tables point at each other.
+* `SELECT` picks columns, `FROM` names the table, `WHERE` filters rows, `ORDER `BY sorts, and `LIMIT` cuts the result off at n rows.
+* `JOIN ... ON` combines two tables by matching rows. `INNER JOIN` keeps only matched rows. `LEFT JOIN` keeps every left-table row and fills NULL where there’s no match.
+* `GROUP BY` collapses rows that share a value into one row per group, so you can use aggregates (`COUNT`, `SUM`, `AVG`, `MAX`, `MIN`). `HAVING` filters those groups.
+* `NULL` means “no value.” Test for it with `IS NULL`, never `= NULL`.
+
+**The mental model that unlocks most of it.** SQL runs in a different order than you write it:
+
+1. FROM / JOIN   build the combined rows
+2. WHERE         throw away rows
+3. GROUP BY      collapse rows into groups
+4. HAVING        throw away groups
+5. SELECT        pick the columns (and compute aggregates)
+6. ORDER BY      sort
+7. LIMIT         cut
+
+That order explains why `WHERE COUNT(*) > 1` fails. At step 2, nothing has been counted yet, so counts can only be filtered at step 4.
+
