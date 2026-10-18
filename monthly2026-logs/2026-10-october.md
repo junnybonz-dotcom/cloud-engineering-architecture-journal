@@ -2108,5 +2108,50 @@ def run(label, sql, params=()):
     for row in conn.execute(sql, params):
         print("  ", row)
 
-Add each query below after the setup and run `python3 library.py`.
+**Add each query below after the setup and run `python3 library.py`.**
+
+`python`
+run("1. SELECT + ORDER BY", "SELECT title, genre FROM books ORDER BY title")
+` ('Dune', 'scifi')  ('Emma', 'classic')  ('Neuromancer', 'scifi')  ('Ulysses', 'classic')`
+
+run("2. WHERE (parameterized)", "SELECT * FROM loans WHERE days > ?", (10,))
+` (1, 1, 1, 14)  (3, 2, 1, 21)`
+
+run("3. INNER JOIN across three tables", """
+    SELECT members.name, books.title, loans.days
+    FROM loans
+    JOIN members ON loans.member_id = members.id
+    JOIN books   ON loans.book_id   = books.id
+    ORDER BY loans.id""")
+` ('Ana','Dune',14) ('Ana','Neuromancer',7) ('Ben','Dune',21) ('Cara','Emma',10) ('Ana','Emma',5)`
+
+run("4. LEFT JOIN: members who never borrowed", """
+    SELECT members.name
+    FROM members
+    LEFT JOIN loans ON loans.member_id = members.id
+    WHERE loans.id IS NULL""")
+` ('Dev',)`
+
+run("5. GROUP BY: loans per member", """
+    SELECT members.name, COUNT(*) AS loan_count
+    FROM loans JOIN members ON loans.member_id = members.id
+    GROUP BY members.name
+    ORDER BY members.name""")
+` ('Ana', 3)  ('Ben', 1)  ('Cara', 1)`
+
+run("6. HAVING: only members with 2+ loans", """
+    SELECT members.name, COUNT(*) AS loan_count
+    FROM loans JOIN members ON loans.member_id = members.id
+    GROUP BY members.name
+    HAVING COUNT(*) > 1""")
+` ('Ana', 3)`
+
+run("7. LEFT JOIN: books nobody borrowed", """
+    SELECT books.title
+    FROM books
+    LEFT JOIN loans ON loans.book_id = books.id
+    WHERE loans.id IS NULL""")
+` ('Ulysses',)`
+
+**Why query 4 works.** The `LEFT JOIN` keeps Dev even though Dev has no loans, and fills Dev’s `loans` columns with `NULL`. `WHERE loans.id IS NULL` then keeps exactly those rows. An `INNER JOIN` would have dropped Dev before you could find them.
 
