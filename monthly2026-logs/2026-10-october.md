@@ -2169,4 +2169,13 @@ print(conn.execute("SELECT * FROM loans WHERE book_id = NULL").fetchall())  # []
 
 **Real-world use: Most “report” requests are one of these shapes: rows matching a condition (WHERE), the same thing across two tables (JOIN), a count or total per category (GROUP BY), or the things that have no match (LEFT JOIN ... IS NULL). That last one, finding customers with no orders or files with no owner, is the question inner joins can’t answer, and it comes up constantly. Your capstone used only a single table, so this is the part that real databases need on top of it.**
 
-## October 19 (Day 89) 
+## October 19 (Day 89) Weakest topic #2, applied cold — same "different context" test.
+
+**Definition**
+
+Three ideas that matter more once the data is messy:
+
+* **A foreign key can be** `NULL`s. It means “no parent.” A ticket with `agent_id = NULL` is valid, and the foreign key doesn’t reject it. An `INNER JOIN` silently drops that ticket, so a join can make rows vanish without any error.
+* `COUNT(*)` **counts rows.** `COUNT(column)` **counts non-**`NULL` **values in that column.** After a `LEFT JOIN`, an agent with no tickets still has one row, with `NULL` in every ticket column. So `COUNT(*)` says 1 and `COUNT(tickets.id)` says 0. When you want “how many, including zero,” count a column from the *right* table.
+* **Where a filter goes changes a** `LEFT JOIN`. A condition in `ON` limits which right-side rows match, and left rows are kept regardless. A condition in `WHERE` runs afterward and deletes rows, including the `NULL`-padded ones you wanted to keep. It silently turns your `LEFT JOIN` back into an `INNER JOIN`.
+
