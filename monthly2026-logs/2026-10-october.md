@@ -2179,3 +2179,89 @@ Three ideas that matter more once the data is messy:
 * `COUNT(*)` **counts rows.** `COUNT(column)` **counts non-**`NULL` **values in that column.** After a `LEFT JOIN`, an agent with no tickets still has one row, with `NULL` in every ticket column. So `COUNT(*)` says 1 and `COUNT(tickets.id)` says 0. When you want “how many, including zero,” count a column from the *right* table.
 * **Where a filter goes changes a** `LEFT JOIN`. A condition in `ON` limits which right-side rows match, and left rows are kept regardless. A condition in `WHERE` runs afterward and deletes rows, including the `NULL`-padded ones you wanted to keep. It silently turns your `LEFT JOIN` back into an `INNER JOIN`.
 
+**Worked examples**
+`python`
+` support.py`
+import sqlite3
+
+conn = sqlite3.connect(":memory:")
+conn.execute("PRAGMA foreign_keys = ON")
+conn.executescript("""
+CREATE TABLE agents (id INTEGER PRIMARY KEY, name TEXT NOT NULL);
+CREATE TABLE tickets (
+    id INTEGER PRIMARY KEY,
+    agent_id INTEGER,
+    status TEXT, priority INTEGER, opened TEXT,
+    FOREIGN KEY (agent_id) REFERENCES agents(id)
+);
+INSERT INTO agents (name) VALUES ('Lina'), ('Omar'), ('Pia'), ('Quin');
+INSERT INTO tickets (agent_id, status, priority, opened) VALUES
+    (1,'open',3,'2026-10-01'), (1,'closed',1,'2026-10-02'),
+    (2,'open',2,'2026-10-02'), (2,'open',3,'2026-10-05'),
+    (1,'closed',2,'2026-10-06'), (3,'closed',1,'2026-10-06'),
+    (NULL,'open',3,'2026-10-07');
+""")
+
+def run(label, sql, params=()):
+    print(f"\n{label}")
+    for row in conn.execute(sql, params):
+        print("  ", row)
+
+**Add the queries below after the setup.**
+
+`python`
+run("1. Open tickets, highest priority first", """
+    SELECT id, priority FROM tickets
+    WHERE status = 'open'
+    ORDER BY priority DESC, id""")
+` (1, 3)  (4, 3)  (7, 3)  (3, 2)`
+`python`
+run("2. INNER JOIN: ticket with its agent", """
+    SELECT agents.name, tickets.id, tickets.status
+    FROM tickets JOIN agents ON tickets.agent_id = agents.id
+    ORDER BY tickets.id""")
+` ('Lina',1,'open') ('Lina',2,'closed') ('Omar',3,'open')`
+` ('Omar',4,'open') ('Lina',5,'closed') ('Pia',6,'closed')`
+` 6 rows. There are 7 tickets. Ticket 7 vanished with no error.`
+`python`
+run("3. Agents with no tickets", """
+    SELECT agents.name
+    FROM agents LEFT JOIN tickets ON tickets.agent_id = agents.id
+    WHERE tickets.id IS NULL""")
+` ('Quin',)`
+
+run("4. Tickets with no agent (the NULL foreign key)", """
+    SELECT id, status FROM tickets WHERE agent_id IS NULL""")
+` (7, 'open')`
+`python`
+run("5a. The COUNT(*) trap", """
+    SELECT agents.name, COUNT(*) AS n
+    FROM agents LEFT JOIN tickets ON tickets.agent_id = agents.id
+    GROUP BY agents.name ORDER BY agents.name""")
+` ('Lina',3) ('Omar',2) ('Pia',1) ('Quin',1)    <- Quin has 0 tickets, not 1`
+
+run("5b. Fixed: count a right-side column", """
+    SELECT agents.name, COUNT(tickets.id) AS n
+    FROM agents LEFT JOIN tickets ON tickets.agent_id = agents.id
+    GROUP BY agents.name ORDER BY agents.name""")
+` ('Lina',3) ('Omar',2) ('Pia',1) ('Quin',0)`
+`python`
+run("6a. Filter in WHERE: agents with no open tickets disappear", """
+    SELECT agents.name, COUNT(tickets.id) AS open_n
+    FROM agents LEFT JOIN tickets ON tickets.agent_id = agents.id
+    WHERE tickets.status = 'open'
+    GROUP BY agents.name ORDER BY agents.name""")
+` ('Lina',1) ('Omar',2)         <- Pia and Quin are gone`
+
+run("6b. Filter in ON: everyone stays, zeros included", """
+    SELECT agents.name, COUNT(tickets.id) AS open_n
+    FROM agents
+    LEFT JOIN tickets ON tickets.agent_id = agents.id AND tickets.status = 'open'
+    GROUP BY agents.name ORDER BY agents.name""")
+` ('Lina',1) ('Omar',2) ('Pia',0) ('Quin',0)`
+`python`
+run("7. HAVING: days with more than one ticket", """
+    SELECT opened, COUNT(*) FROM tickets
+    GROUP BY opened HAVING COUNT(*) > 1 ORDER BY opened""")
+` ('2026-10-02', 2)  ('2026-10-06', 2)`
+
