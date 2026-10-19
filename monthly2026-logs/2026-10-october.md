@@ -2265,3 +2265,10 @@ run("7. HAVING: days with more than one ticket", """
     GROUP BY opened HAVING COUNT(*) > 1 ORDER BY opened""")
 ` ('2026-10-02', 2)  ('2026-10-06', 2)`
 
+**Two checks that catch silent wrongness:**
+
+`python`
+print(conn.execute("SELECT COUNT(*) FROM tickets").fetchone())                        # (7,)
+print(conn.execute("SELECT COUNT(*) FROM tickets JOIN agents ON agent_id = agents.id").fetchone())  # (6,)
+` sanity habit: compare row counts before and after a join. A gap means rows were dro`
+
