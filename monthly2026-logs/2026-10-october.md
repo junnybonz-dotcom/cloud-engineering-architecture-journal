@@ -2272,3 +2272,6 @@ print(conn.execute("SELECT COUNT(*) FROM tickets").fetchone())                  
 print(conn.execute("SELECT COUNT(*) FROM tickets JOIN agents ON agent_id = agents.id").fetchone())  # (6,)
 ` sanity habit: compare row counts before and after a join. A gap means rows were dro`
 
+**Real-world use: The queries that cause real trouble in reports aren’t the ones that crash. They run fine and return a plausible-looking wrong number: a dashboard that shows 6 tickets when there are 7, or an “agents by open tickets” table that quietly omits everyone at zero. Those errors are INNER JOIN dropping NULLs, COUNT(*) counting padding rows, and a filter in WHERE undoing a LEFT JOIN. Checking a join’s row count against the source table is a cheap habit that catches most of them.**
+
+## October 20 (Day 90) 
