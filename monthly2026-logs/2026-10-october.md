@@ -2281,3 +2281,14 @@ Definition: scope and finish line
 Part 1 covers (the Day 62-64 territory): reach your VM, set up an isolated Python environment, call a public API, and produce a trimmed dict of the fields you care about.
 
 Part 1 does not cover: SQLite, error handling around the whole run, cron, or querying. Those are Oct 21.
+
+You’re done when all of these are true, in order:
+
+You can reach the VM and prove you’re on the remote machine, not your laptop.
+A fresh project folder (capstone2) exists with a venv you activated, and you can prove python3 is the venv’s.
+requests is installed in that venv and imports cleanly.
+You picked a no-key API, hit it once from the terminal, and chose 3 fields worth keeping.
+A function returns a dict containing only those fields plus a timestamp, using a timeout and a status check.
+Running the file prints that dict.
+You broke the URL on purpose, saw the failure, and reverted it.
+
