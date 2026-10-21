@@ -2292,3 +2292,9 @@ A function returns a dict containing only those fields plus a timestamp, using a
 Running the file prints that dict.
 You broke the URL on purpose, saw the failure, and reverted it.
 
+The rules
+No old repo, no old lessons, no AI. Allowed: error messages, --help, man, and official docs (docs.python.org, the requests docs, your chosen API’s docs).
+Time-box about 2.5 hours. Stop the clock when you’ve been stuck on one thing for 15 minutes.
+Use the hint ladder (below) instead of opening the old files, and log which rung you needed.
+Don’t fix silently. Write the stall down first, then fix it.
+
