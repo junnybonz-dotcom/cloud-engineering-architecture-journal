@@ -2274,4 +2274,10 @@ print(conn.execute("SELECT COUNT(*) FROM tickets JOIN agents ON agent_id = agent
 
 **Real-world use: The queries that cause real trouble in reports aren’t the ones that crash. They run fine and return a plausible-looking wrong number: a dashboard that shows 6 tickets when there are 7, or an “agents by open tickets” table that quietly omits everyone at zero. Those errors are INNER JOIN dropping NULLs, COUNT(*) counting padding rows, and a filter in WHERE undoing a LEFT JOIN. Checking a join’s row count against the source table is a cheap habit that catches most of them.**
 
-## October 20 (Day 90) 
+## October 20 (Day 90) Redo Capstone #2 cold, part 1 — VM + API script, entirely from memory. No looking at your original repo. Get as far as you can; note exactly where you get stuck.
+
+Definition: scope and finish line
+
+Part 1 covers (the Day 62-64 territory): reach your VM, set up an isolated Python environment, call a public API, and produce a trimmed dict of the fields you care about.
+
+Part 1 does not cover: SQLite, error handling around the whole run, cron, or querying. Those are Oct 21.
