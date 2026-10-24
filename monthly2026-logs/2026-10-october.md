@@ -2345,3 +2345,13 @@ if __name__ == "__main__":
 
 **Part 2 covers** the Day 65-69 territory: SQLite, error handling, cron, and one real query. Then the comparison.
 
+**You’re done when, in order:**
+
+1. A `db2.py` creates the table with `CREATE TABLE IF NOT EXISTS` and inserts one row using `?` placeholders and a commit.
+2. A `main2.py` wires fetch and insert together, and you’ve run it 3 times manually.
+3. You confirmed the rows from the `sqlite3` CLI: the count matches the runs, and the timestamps are distinct.
+4. The fetch and insert are wrapped in `try`/`except` with **specific** exceptions, and you broke each failure layer once (timeout or bad URL, bad field name, bad DB path) and reverted.
+5. A cron job runs it **every minute for a test**, using absolute paths and a log file. You saw rows climb, then changed it to `*/15` or removed it.
+6. You ran one `GROUP BY` query on your own data.
+7. You diffed against the original, wrote the gap document, and pushed both versions.
+
