@@ -2355,3 +2355,13 @@ if __name__ == "__main__":
 6. You ran one `GROUP BY` query on your own data.
 7. You diffed against the original, wrote the gap document, and pushed both versions.
 
+**The rules**
+1. Same as yesterday: no old repo, no AI. Error messages, --help, and official docs are fine.
+2. Build for about 3 hours, then diff for about 1. Don’t open the original until your own version runs or the build time is up.
+3. Use the hint ladder and the stuck log from yesterday.
+4. Housekeeping:
+    * Use the `capstone2` folder and new file and DB names (weather2.db). Your *  original cron job probably still runs against the original folder, so the  two keep separate databases.
+    * Don’t launch a second VM while the first runs (free-tier hours).
+    * `datetime.now()` on the VM is UTC.
+
+    
