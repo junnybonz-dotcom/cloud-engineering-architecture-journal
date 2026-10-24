@@ -2298,3 +2298,50 @@ Time-box about 2.5 hours. Stop the clock when you’ve been stuck on one thing f
 Use the hint ladder (below) instead of opening the old files, and log which rung you needed.
 Don’t fix silently. Write the stall down first, then fix it.
 
+**Commands, in order**
+
+bash
+ssh -i ~/.ssh/id_ed25519 ubuntu@<public-ip>
+whoami; hostname; pwd            # prove you're remote
+
+mkdir capstone2 && cd capstone2
+python3 -m venv env
+source env/bin/activate
+which python3                    # should point inside capstone2/env
+pip install requests
+python3 -c "import requests; print(requests.__version__)"
+
+curl -s "https://api.open-meteo.com/v1/forecast?latitude=14.6&longitude=121.0&current=temperature_2m,wind_speed_10m"
+
+fetch2.py
+
+python
+import datetime
+import requests
+
+API_URL = ("https://api.open-meteo.com/v1/forecast"
+           "?latitude=14.6&longitude=121.0&current=temperature_2m,wind_speed_10m")
+
+
+def fetch_weather():
+    response = requests.get(API_URL, timeout=10)
+    response.raise_for_status()
+    raw = response.json()
+    return {
+        "fetched_at": datetime.datetime.now().isoformat(),
+        "temperature_c": raw["current"]["temperature_2m"],
+        "wind_speed_kmh": raw["current"]["wind_speed_10m"],
+    }
+
+
+if __name__ == "__main__":
+    print(fetch_weather())
+
+**Real-world use: Rebuilding something from a blank folder is the closest thing to a real interview or on-call situation, where the old repo isn’t open and the machine is in front of you. Your stuck log doubles as a practical study plan. A pattern like “all three stalls were environment problems” tells you far more than “I feel shaky on Python.”**
+
+## October 21 (Day 91) Redo Capstone #2 cold, part 2 — finish it, then diff your redo against the original. Whatever you had to guess at or couldn’t remember is your actual weak spot, more honest than Day 15’s self-rating. Document the gap, push both versions.
+
+**Definition: scope and finish line**
+
+**Part 2 covers** the Day 65-69 territory: SQLite, error handling, cron, and one real query. Then the comparison.
+
