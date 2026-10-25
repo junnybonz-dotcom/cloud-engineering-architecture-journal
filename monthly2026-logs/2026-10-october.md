@@ -2367,3 +2367,5 @@ if __name__ == "__main__":
 **Real-world use: Rebuilding from memory and then diffing is how people find out what they know versus what they’ve seen. It also gives you something concrete for a portfolio or interview: “here’s my first build, my second build from memory, and a written analysis of what I got wrong.” That shows how you learn, which is rarer than a clean repo.**    
 
 ## October 22-25 (Day 92-95) Finals get first priority.
+
+Nothing happends here because Finals was such a bitch.
