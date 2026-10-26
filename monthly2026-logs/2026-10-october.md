@@ -2369,3 +2369,31 @@ if __name__ == "__main__":
 ## October 22-25 (Day 92-95) Finals get first priority.
 
 Nothing happends here because Finals was such a bitch.
+
+## October 26 (Day 96) Once finals ease up — repo audit. Go through everything from June onward (Linux/Python, SQL, VM, boto3) and note what’s messy, undocumented, or missing a README. Don’t fix yet, just list it.
+
+**Repo audit — October 26, 2026**
+Repository: cloud-engineering-architecture-journal
+
+Severity guide: Blocks = prevents a stranger from using or trusting the repo; Messy = confusing or potentially unsafe to track; Cosmetic = minor polish.
+`	Finding	Category	Severity	Est. fix`
+1.	30 of 32 tracked files are under monthly2026-logs/; the overall structure needs review.	Structure	Messy	15 min
+2.	Practice folders use names such as july2026-tests(unrelevant) and august2026-tests(unrelevant). Their purpose and naming are unclear.	Structure	Messy	15 min
+3.	The September practice directory appears to contain a redundant nested directory with the same name.	Structure	Messy	10 min
+4.	The root README explains the goal and links to projects but lacks a clear setup/run guide for someone starting from a fresh clone.	Documentation / Reproducibility	Messy	20 min
+5.	The September monthly-notes link has a malformed URL.	Documentation	Messy	5 min
+6.	The Weather Data Pipeline Capstone #2 link has a malformed URL.	Documentation	Messy	5 min
+7.	October notes are missing from the README's monthly progress list.	Documentation	Messy	5 min
+8.	Project links in the README use inconsistent Markdown formatting.	Documentation	Cosmetic	5 min
+9.	Seven directories have no README: monthly2026-logs/, August tests, its acces/ folder, project/scripts/, July tests, archive/, and September tests.	Documentation	Messy	20–40 min
+10.	Commit messages are repetitive and very granular, often recording each journal subsection as a separate commit.	Git history	Messy	15 min
+11.	The latest commit message includes the placeholder phrase “BLAH BLAH BLAH nothing happends here.”	Git history / Documentation	Messy	2 min
+12.	Private.ssh is tracked but empty (0 bytes in both the current file and the inspected commit).	Structure / Safety	Cosmetic	2 min
+13.	access.log and sample.log are tracked and need a review to decide whether they are intentional learning examples.	Shouldn't be tracked	Messy	5 min
+14.	Five SQLite database files are tracked; determine whether they're necessary test fixtures or generated data.	Shouldn't be tracked	Messy	10 min
+15.	A compiled .exe is tracked and is the largest file found (140 KB), inside a folder labelled unrelevant.	Structure / Shouldn't be tracked	Messy	5 min
+16.	No root .gitignore was found.	Safety / Reproducibility	Messy	10 min
+17.	AWS/boto3 scripts, IAM policy work, the weather logger and GAPS.md don't appear in the filename search for this journal repository. Some may be in separate repositories; verify that important work is discoverable from the journal.	Missing / Documentation	Messy	20 min
+18.	sandbox.py sits at the repository root outside the monthly log structure, and its purpose should be documented or confirmed.	Structure / Documentation	Messy	5 min
+
+
