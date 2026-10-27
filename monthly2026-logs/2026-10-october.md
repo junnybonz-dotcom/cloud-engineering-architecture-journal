@@ -2396,4 +2396,13 @@ Severity guide: Blocks = prevents a stranger from using or trusting the repo; Me
 17.	AWS/boto3 scripts, IAM policy work, the weather logger and GAPS.md don't appear in the filename search for this journal repository. Some may be in separate repositories; verify that important work is discoverable from the journal.	Missing / Documentation	Messy	20 min
 18.	sandbox.py sits at the repository root outside the monthly log structure, and its purpose should be documented or confirmed.	Structure / Documentation	Messy	5 min
 
+## October 27 (Day 97) Clean up the READMEs — each major project (capstone #1, capstone #2, the boto3 script) should read like a standalone portfolio piece: what it does, how to run it, one real output example. This is what anyone international actually looks at first.
 
+cloud-engineering-architecture-journal/
+  README.md                  <- index: links to each project
+  capstone/
+    original/README.md
+    redo-oct21/README.md     (+ GAPS.md)
+  boto3-inventory/README.md
+
+  
