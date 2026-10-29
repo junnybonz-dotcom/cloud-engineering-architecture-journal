@@ -1,0 +1,23 @@
+# Python environments and cache
+env/
+venv/
+__pycache__/
+
+# Databases and generated logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.exe
+cron.log
+
+# Secrets and local credentials
+.env
+.env.*
+!.env.example
+.aws/
+*.pem
+*.key
+*.ppk
+id_ed25519
+id_rsa
