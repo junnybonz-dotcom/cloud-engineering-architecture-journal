@@ -2408,3 +2408,7 @@ cloud-engineering-architecture-journal/
 ## October 28 (Day 98) Final GitHub push — commit history clean, everything pushed, nothing sitting locally uncommitted. Treat this as the “semester close” snapshot.
 
 1st semester bye bye!
+
+## Oct 29 (Day 99): Write the “what I learned this semester” post (LinkedIn/blog) — the arc from Linux basics through cloud + security, what was hardest, what clicked. This is also useful prep for talking about the semester later (interviews, portfolio site copy).
+
+Its on the LinkIn post
