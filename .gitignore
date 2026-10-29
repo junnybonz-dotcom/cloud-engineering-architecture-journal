@@ -21,3 +21,8 @@ cron.log
 *.ppk
 id_ed25519
 id_rsa
+
+# Local practice folders excluded from portfolio
+/monthly2026-logs/august2026-tests(unrelevant)/
+/monthly2026-logs/july2026-tests(unrelevant)/
+/monthly2026-logs/september2026-tests(unrelevant)/
