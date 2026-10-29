@@ -2412,3 +2412,7 @@ cloud-engineering-architecture-journal/
 ## Oct 29 (Day 99): Write the “what I learned this semester” post (LinkedIn/blog) — the arc from Linux basics through cloud + security, what was hardest, what clicked. This is also useful prep for talking about the semester later (interviews, portfolio site copy).
 
 Its on the LinkIn post
+
+## Oct 30–31 (Days 30–31): Actual rest. No new material, no review, nothing “productive” required. You’ve been running this daily/weekly system since June — the break is part of the plan, not slack time to feel guilty about.
+
+SEE YOU! AND GOODBYE!
