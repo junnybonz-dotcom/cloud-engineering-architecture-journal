@@ -1,0 +1,123 @@
+--- original/fetch.py
++++ redo/fetch.py
+@@ -1,7 +1,11 @@
+-import requests
+ import datetime
++import requests
+
+-API_URL = "https://api.open-meteo.com/v1/forecast?latitude=10.3157&longitude=123.8854&current=temperature_2m,wind_speed_10m"
++API_URL = (
++    "https://api.open-meteo.com/v1/forecast"
++    "?latitude=14.6&longitude=121.0"
++    "&current=temperature_2m,wind_speed_10m"
++)
+
+
+ def fetch_weather():
+@@ -10,15 +14,12 @@
+
+     raw = response.json()
+
+-    data = {
++    return {
+         "fetched_at": datetime.datetime.now().isoformat(),
+         "temperature_c": raw["current"]["temperature_2m"],
+         "wind_speed_kmh": raw["current"]["wind_speed_10m"],
+     }
+
+-    return data
+-
+
+ if __name__ == "__main__":
+-    result = fetch_weather()
+-    print(result)
++    print(fetch_weather())
+--- original/db.py
++++ redo/db2.py
+@@ -1,13 +1,12 @@
+ import sqlite3
+
+-DB_PATH = "weather.db"
++DB_PATH = "/home/ubuntu/capstone2/weather2.db"
+
+
+ def create_table():
+     conn = sqlite3.connect(DB_PATH)
+-    cursor = conn.cursor()
+
+-    cursor.execute("""
++    conn.execute("""
+         CREATE TABLE IF NOT EXISTS weather_log (
+             id INTEGER PRIMARY KEY AUTOINCREMENT,
+             fetched_at TEXT NOT NULL,
+@@ -22,20 +21,17 @@
+
+ def insert_weather(data):
+     conn = sqlite3.connect(DB_PATH)
+-    cursor = conn.cursor()
+
+-    cursor.execute("""
+-        INSERT INTO weather_log (
+-            fetched_at,
+-            temperature_c,
+-            wind_speed_kmh
+-        )
+-        VALUES (?, ?, ?)
+-    """, (
+-        data["fetched_at"],
+-        data["temperature_c"],
+-        data["wind_speed_kmh"]
+-    ))
++    conn.execute(
++        """INSERT INTO weather_log
++        (fetched_at, temperature_c, wind_speed_kmh)
++        VALUES (?, ?, ?)""",
++        (
++            data["fetched_at"],
++            data["temperature_c"],
++            data["wind_speed_kmh"],
++        ),
++    )
+
+     conn.commit()
+     conn.close()
+--- original/main.py
++++ redo/main2.py
+@@ -1,30 +1,26 @@
+-import requests
+ import sqlite3
++import requests
+
+ from fetch import fetch_weather
+-from db import create_table, insert_weather
++from db2 import create_table, insert_weather
+
+
+ def run_once():
+-    try:
+-        create_table()
++    create_table()
+
++    try:
+         data = fetch_weather()
+
+     except requests.exceptions.Timeout:
+-        print("API call timed out — skipping this run.")
+-        return
+-
+-    except requests.exceptions.HTTPError as e:
+-        print(f"API returned an error status: {e}")
++        print("API call timed out, skipping this run.")
+         return
+
+     except requests.exceptions.RequestException as e:
+-        print(f"Network problem reaching the API: {e}")
++        print(f"API request failed: {e}")
+         return
+
+     except KeyError as e:
+-        print(f"API response was missing an expected field: {e}")
++        print(f"API response was missing a field: {e}")
+         return
+
+     try:
