@@ -97,7 +97,15 @@ The script handles several failure categories:
 
 ## Current Repository Status
 
-The reporting scripts currently reside in the AWS VM workspace. Their inclusion in this journal repository is a separate repository-organization task, so this README alone does not constitute a complete fresh-clone runnable package yet.
+The Python reporting scripts are included in this directory. The IAM
+policy JSON was not found as a saved file and is not included in this
+repository. Review the permissions attached to the AWS identity in the
+AWS Console before running the tool.
+
+The script uses STS to identify the caller and needs permission to list
+S3 buckets and describe EC2 instances in the configured region. The
+effective permissions depend on the IAM policies attached to the
+identity being used.
 
 ## What I Learned
 
