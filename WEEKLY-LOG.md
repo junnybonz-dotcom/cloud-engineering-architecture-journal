@@ -1,7 +1,7 @@
 
 ---
 
-## November 1-21 - TOO BUSY SLEEPING 
+## November 1-21 - TOO BUSY SLEEPING BECAUSE ITS MY SEMESTER BREAK
 
 ## November 22 — Portfolio Engineering Milestone
 
