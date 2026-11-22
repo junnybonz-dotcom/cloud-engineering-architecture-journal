@@ -20,33 +20,73 @@ I'm a BSIT student developing foundations in:
 
 My goal is to build strong fundamentals and graduate with practical projects and the ability to explain, troubleshoot, and improve the systems I build.
 
+
 ## 🚀 Standalone Projects
 
-The repositories below contain the project source code and their own setup instructions.
+The repositories below contain the source code, setup instructions, tests, and documentation for each project.
 
-### 1. 🌦️ [Weather Logger — Automated Data Pipeline](https://github.com/junnybonz-dotcom/weather-logger-capstone)
+### 1. 🌦️ Weather Logger — Automated Data Pipeline
 
-A Python application deployed on an Ubuntu AWS EC2 instance. It retrieves current weather data from the Open-Meteo API, stores timestamped readings in SQLite, and runs automatically using Linux cron.
+[![Weather Logger CI](https://github.com/junnybonz-dotcom/weather-logger-capstone/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/junnybonz-dotcom/weather-logger-capstone/actions/workflows/tests.yml)
 
-**Demonstrates:** Python, HTTP requests, JSON, SQLite, SQL, Linux, EC2, cron, and error handling.
+[**View Repository →**](https://github.com/junnybonz-dotcom/weather-logger-capstone)
 
-### 2. ☁️ [AWS Inventory Report — Boto3](https://github.com/junnybonz-dotcom/aws-inventory-report)
+A Python weather data pipeline deployed on an Ubuntu AWS EC2 instance. It retrieves current temperature and wind-speed data from the Open-Meteo API, validates the response, stores timestamped readings in SQLite, and runs automatically every 15 minutes through Linux cron.
 
-A read-only AWS inventory tool that reports S3 buckets and EC2 instances, verifies the active AWS identity through STS, and handles common AWS errors. The repository includes shared region configuration, pagination, and offline unit tests using mocked clients.
+**Demonstrates:**
+- Python and REST API integration
+- HTTP error handling and JSON validation
+- SQLite database operations and parameterized SQL
+- Linux administration and cron scheduling
+- Automated testing and GitHub Actions CI
 
-**Demonstrates:** Python, Boto3, AWS STS, S3, EC2, IAM concepts, pagination, and testing.
+### 2. ☁️ AWS Inventory Report — Boto3
 
-### 3. 🖥️ [Log Scanner](https://github.com/junnybonz-dotcom/log-scanner-capstone)
+[![AWS Inventory Report CI](https://github.com/junnybonz-dotcom/aws-inventory-report/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/junnybonz-dotcom/aws-inventory-report/actions/workflows/tests.yml)
 
-A Python command-line tool that recursively scans directories, records file metadata, and summarizes lines matching a selected pattern in log files.
+[**View Repository →**](https://github.com/junnybonz-dotcom/aws-inventory-report)
 
-**Demonstrates:** Python, filesystem traversal, file metadata, text processing, command-line arguments, and basic error handling.
+A read-only Python command-line tool built with Boto3 to inventory Amazon S3 buckets and EC2 instances. It verifies the active AWS identity through STS, uses shared region configuration, handles paginated API responses, and provides actionable AWS error messages.
 
-### 4. 🔗 [API Logger](https://github.com/junnybonz-dotcom/api-logger)
+**Demonstrates:**
+- Python automation with Boto3
+- AWS S3, EC2, STS, and IAM concepts
+- AWS authentication and region configuration
+- Pagination and exception handling
+- Offline unit testing with mocked AWS clients
+- GitHub Actions CI
 
-A Python script that requests public GitHub repository data and appends timestamped repository statistics to a JSON Lines log.
+### 3. 🖥️ Log Scanner — Python CLI Tool
 
-**Demonstrates:** Python, REST APIs, Requests, JSON, exception handling, and file logging.
+[![Log Scanner CI](https://github.com/junnybonz-dotcom/log-scanner-capstone/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/junnybonz-dotcom/log-scanner-capstone/actions/workflows/tests.yml)
+
+[**View Repository →**](https://github.com/junnybonz-dotcom/log-scanner-capstone)
+
+A Python command-line utility that recursively inventories files and summarizes matching lines in `.log` files. It supports configurable text searches, regular expressions, case-sensitive and case-insensitive matching, file metadata, and human-readable file sizes.
+
+**Demonstrates:**
+- Python CLI development with argparse
+- Filesystem traversal and file metadata
+- Text processing and regular expressions
+- Exception handling and exit codes
+- Automated testing with temporary files
+- GitHub Actions CI
+
+### 4. 🔗 API Logger — GitHub Repository Statistics
+
+[![API Logger CI](https://github.com/junnybonz-dotcom/api-logger/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/junnybonz-dotcom/api-logger/actions/workflows/tests.yml)
+
+[**View Repository →**](https://github.com/junnybonz-dotcom/api-logger)
+
+A Python command-line application that retrieves public GitHub repository statistics through the GitHub REST API and appends timestamped records to a JSON Lines file. It supports configurable repositories, output paths, and request timeouts, with response validation and structured error handling.
+
+**Demonstrates:**
+- Python REST API integration
+- HTTP requests and response validation
+- JSON serialization and JSONL file handling
+- UTC timestamps and command-line arguments
+- Dependency injection and mocked API testing
+- GitHub Actions CI
 
 ---
 
