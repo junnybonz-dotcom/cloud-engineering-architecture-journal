@@ -1,44 +1,36 @@
-# November 2026 — Weekly Study Log
 
-## November 1 — Day 100
+---
 
-### AWS Cost Check
+## November 22 — Portfolio Engineering Milestone
 
-- Plan: Free Plan
-- Credits remaining: $82.39 (initial check)
-- Expiry: March 15, 2027
-- Current month actual cost: $0.00
-- Forecast month-end cost: $11.74
-- Budget: Zero-spend
-- Budget status: Healthy
+### Project Improvements
 
-### AWS Resource Usage
+- Separated the Boto3 AWS Inventory Report into its own repository.
+- Improved shared AWS region configuration and pagination.
+- Added mocked unit tests for AWS inventory operations.
+- Improved the Weather Logger API validation and SQLite handling.
+- Added automated tests to the Weather Logger.
+- Upgraded the Log Scanner with argparse, regex search, and file-size formatting.
+- Upgraded the API Logger with configurable repositories, UTC timestamps, response validation, and JSONL output.
 
-- EC2: 7.775 hours
-- EC2 usage charge: $0.08
-- EC2 credit: $0.08
-- Public IPv4: 10 hours
-- Public IPv4 charge: $0.05
-- VPC credit: $0.05
-- EBS displayed charge: $0.00
+### Engineering Practices
 
-### Study Progress
-
-- [x] AWS plan checked
-- [x] Budget checked
-- [x] EC2 and VPC billing inspected
-- [ ] Cold baseline assessment
-
-### Study Hours
-- Actual time: To be recorded
+- Added automated unit tests using mocks and temporary files or databases.
+- Added GitHub Actions workflows to the four standalone repositories.
+- Configured CI to test Python 3.12, 3.13, and 3.14.
+- Practiced using feature branches, commits, pull requests, and merges.
+- Improved project documentation and repository organization.
 
 ### What I Learned
-- AWS credits can offset resource usage charges.
-- A healthy budget does not mean resources consume nothing.
-- EC2 compute and public IPv4 have separate billing entries.
 
-### What I Need to Improve
-- Add after the baseline assessment.
+- Why automated tests should not depend on live APIs or cloud resources.
+- How mocking helps isolate application behavior.
+- How CI can validate code across multiple Python versions.
+- Why generated files, caches, and local runtime data should stay out of Git.
+- Why project documentation must reflect the actual implementation.
 
-### Next Session
-- Continue Week 1: Linux and Python fundamentals.
+### Next Improvements
+
+- Continue strengthening Linux, Python, SQL, and networking fundamentals.
+- Practice reproducing project logic independently.
+- Keep project documentation and weekly learning records current.
