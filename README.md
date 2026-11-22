@@ -88,9 +88,7 @@ What it demonstrates:
 - Credential and permission troubleshooting.
 - Read-only access and IAM security practices.
 
-[**Read the Boto3 project documentation →**](boto3-inventory/README.md)
-
-> Note: The source scripts currently reside in my AWS VM workspace and have not yet been packaged into this journal repository.
+[**Explore the standalone AWS Inventory Report repository →**](https://github.com/junnybonz-dotcom/aws-inventory-report)
 
 ---
 
