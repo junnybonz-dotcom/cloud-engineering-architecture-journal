@@ -1,154 +1,125 @@
+# Cloud Engineering & Systems Learning Journal
 
-<div align="center">
+**A record of my BSIT studies and four-year self-study journey toward Cloud, Platform, and DevOps Engineering.**
 
-# ☁️ Cloud & Systems Engineering
+This repository documents how I learn: study notes, practical exercises, project retrospectives, assessments, troubleshooting records, and lessons from building systems.
 
-### Building. Automating. Learning by Doing.
-
-I'm a BSIT student building hands-on projects in **Linux, Python, AWS, and cloud automation**.
-
-I document not just what works, but also the problems I encounter, how I troubleshoot them, and what I learn along the way.
-
-<br>
-
-<a href="https://github.com/junnybonz-dotcom">
-  <img src="https://img.shields.io/badge/GitHub-View%20My%20Work-181717?style=for-the-badge&logo=github" alt="GitHub">
-</a>
-<img src="https://img.shields.io/badge/Focus-Cloud%20%26%20Platform%20Engineering-2563eb?style=for-the-badge" alt="Cloud and Platform Engineering">
-<img src="https://img.shields.io/badge/Approach-Hands--On%20Learning-15803d?style=for-the-badge" alt="Hands-on learning">
-
-</div>
+It is the **learning journal**, not the home for every project's source code. Standalone projects have their own repositories so their code, setup instructions, tests, and future improvements can be maintained independently.
 
 ---
 
-## 👨‍💻 About Me
+## 👨‍💻 About This Journal
 
-I'm developing my foundations in cloud and systems engineering through practical projects rather than studying tools in isolation.
+I'm a BSIT student developing foundations in:
 
-My current work focuses on:
+- **Linux & Systems** — command-line workflows, processes, permissions, services, and troubleshooting.
+- **Python & Automation** — scripts, APIs, file handling, error handling, and command-line tools.
+- **Cloud Infrastructure** — AWS identity and access management, EC2, S3, and Boto3.
+- **Data & Databases** — JSON, SQLite, SQL queries, and data handling.
+- **Engineering Practice** — Git, documentation, testing, debugging, and learning from mistakes.
 
-- **Linux & Automation** — command-line tools, Python scripts, and cron jobs.
-- **Cloud Infrastructure** — AWS EC2, IAM permissions, and AWS service integrations.
-- **Data & Monitoring** — APIs, JSON, SQLite, SQL queries, and log analysis.
-- **Engineering Habits** — troubleshooting, documenting failures, and making projects reproducible.
+My goal is to build strong fundamentals and graduate with practical projects and the ability to explain, troubleshoot, and improve the systems I build.
 
-My long-term goal is to grow toward a career in **cloud, platform, or DevOps engineering**.
+## 🚀 Standalone Projects
 
-## 🚀 Featured Project
+The repositories below contain the project source code and their own setup instructions.
 
-### 🌦️ Weather Logger — Automated Data Pipeline
+### 1. 🌦️ [Weather Logger — Automated Data Pipeline](https://github.com/junnybonz-dotcom/weather-logger-capstone)
 
-An AWS-hosted Python application that collects live weather data from the Open-Meteo API, stores timestamped readings in SQLite, and runs automatically using Linux cron.
+A Python application deployed on an Ubuntu AWS EC2 instance. It retrieves current weather data from the Open-Meteo API, stores timestamped readings in SQLite, and runs automatically using Linux cron.
 
-**The pipeline**
+**Demonstrates:** Python, HTTP requests, JSON, SQLite, SQL, Linux, EC2, cron, and error handling.
 
-`Open-Meteo API` → `Python` → `SQLite` → `Cron Automation`
+### 2. ☁️ [AWS Inventory Report — Boto3](https://github.com/junnybonz-dotcom/aws-inventory-report)
 
-**What I built**
-- Fetches temperature and wind-speed data from a public API.
-- Stores readings in a structured SQLite database.
-- Handles API and database failures with specific exceptions.
-- Runs on an Ubuntu EC2 instance using a scheduled job.
-- Uses SQL queries to summarize readings and calculate hourly averages.
+A read-only AWS inventory tool that reports S3 buckets and EC2 instances, verifies the active AWS identity through STS, and handles common AWS errors. The repository includes shared region configuration, pagination, and offline unit tests using mocked clients.
 
-**Technologies:** Python · AWS EC2 · Linux · Requests · SQLite · SQL · Cron
+**Demonstrates:** Python, Boto3, AWS STS, S3, EC2, IAM concepts, pagination, and testing.
 
-[**Explore the Weather Logger repository →**](https://github.com/junnybonz-dotcom/weather-logger-capstone)
+### 3. 🖥️ [Log Scanner](https://github.com/junnybonz-dotcom/log-scanner-capstone)
 
-[View the rebuild and gap analysis →](https://github.com/junnybonz-dotcom/weather-logger-capstone/tree/main/capstone/redo-oct21)
+A Python command-line tool that recursively scans directories, records file metadata, and summarizes lines matching a selected pattern in log files.
 
----
+**Demonstrates:** Python, filesystem traversal, file metadata, text processing, command-line arguments, and basic error handling.
 
-## 🛠️ Project Showcase
+### 4. 🔗 [API Logger](https://github.com/junnybonz-dotcom/api-logger)
 
-### 01 / Log Scanner
+A Python script that requests public GitHub repository data and appends timestamped repository statistics to a JSON Lines log.
 
-**Python · Bash · Filesystem Operations**
-
-A command-line tool that recursively inventories files and summarizes matching error lines in log files.
-
-What it demonstrates:
-- File traversal and metadata collection.
-- Text matching and log summaries.
-- Command-line arguments and basic exception handling.
-
-[**View project and documentation →**](https://github.com/junnybonz-dotcom/log-scanner-capstone)
+**Demonstrates:** Python, REST APIs, Requests, JSON, exception handling, and file logging.
 
 ---
 
-### 02 / AWS Inventory Report
+## 📚 Learning Records
 
-**Python · Boto3 · S3 · EC2 · STS**
+These files document the work behind the projects and the wider study roadmap.
 
-A read-only reporting script that retrieves S3 bucket information and EC2 instance details, identifies the AWS caller, and reports service errors.
+### Monthly study logs
 
-What it demonstrates:
-- AWS SDK integration.
-- EC2 pagination and inventory reporting.
-- Credential and permission troubleshooting.
-- Read-only access and IAM security practices.
+- [July 2026](monthly2026-logs/2026-07-july.md)
+- [August 2026](monthly2026-logs/2026-08-august.md)
+- [September 2026](monthly2026-logs/2026-09-september.md)
+- [October 2026](monthly2026-logs/2026-10-october.md)
 
-[**Explore the standalone AWS Inventory Report repository →**](https://github.com/junnybonz-dotcom/aws-inventory-report)
+### November study records
 
----
+- [November 2026 Weekly Study Log](WEEKLY-LOG.md)
+- [November Baseline Assessment](assessments/baseline.md)
+- [Linux Command Practice Cheat Sheet](notes/linux-task-cheatsheet.md)
+- [Errors and Troubleshooting Journal](ERRORS.md)
 
-### 03 / Weather Logger — Guided Rebuild
+### Project rebuild and reflection
 
-**Python · SQLite · Error Handling · Git**
+The Weather Logger's earlier implementation and guided rebuild are preserved as learning records:
 
-A separate rebuild of the Weather Logger, accompanied by a comparison file and an honest record of what required assistance.
+- [Original implementation snapshot](capstone/original/)
+- [October guided rebuild](capstone/redo-oct21/)
+- [Rebuild gap report](capstone/redo-oct21/GAPS.md)
+- [Rebuild documentation](capstone/redo-oct21/README.md)
+- [Original-versus-rebuild comparison](capstone/redo-oct21/COMPARISON.patch)
 
-The goal was to identify the difference between recognizing code and being able to recreate and explain it independently.
+The rebuild notes distinguish what I could recall, where I needed guidance, and what I still need to practice independently.
 
-[**Explore the rebuild and gap report →**](https://github.com/junnybonz-dotcom/weather-logger-capstone/tree/main/capstone/redo-oct21)
+## 🗂️ Repository Organization
 
----
+| Location | Purpose |
+|---|---|
+| `monthly2026-logs/` | Monthly study history |
+| `WEEKLY-LOG.md` | Current weekly study record |
+| `assessments/` | Baseline and future assessment records |
+| `notes/` | Technical reference notes and task cheat sheets |
+| `ERRORS.md` | Troubleshooting and lessons learned |
+| `capstone/` | Historical project snapshots and guided rebuild records |
+| `boto3-inventory/` | Migration notice pointing to the standalone AWS Inventory Report repository |
 
-### 04 / API Logger
+### Why projects have separate repositories
 
-**Python · Requests · JSON · Cron**
+The journal preserves the learning process and history. Each standalone project repository is the source of truth for that project's code, requirements, usage instructions, tests, and future development.
 
-A mini-project that retrieves public GitHub repository statistics and records timestamped results.
+The AWS Inventory Report was moved out of this journal into its own repository:
 
-[**View API Logger repository →**](https://github.com/junnybonz-dotcom/api-logger)
+➡️ [Open the standalone AWS Inventory Report](https://github.com/junnybonz-dotcom/aws-inventory-report)
 
----
+The old `boto3-inventory/` directory is retained only as a migration pointer; it is not a second copy of the project source code.
 
 ## 🧰 Technologies I'm Practicing
 
-<div align="center">
+**Languages:** Python, SQL, Bash
 
-<img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python">
-<img src="https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black" alt="Linux">
-<img src="https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white" alt="AWS">
-<img src="https://img.shields.io/badge/Bash-121011?style=flat-square&logo=gnubash&logoColor=white" alt="Bash">
-<img src="https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white" alt="SQLite">
-<img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white" alt="Git">
+**Cloud:** AWS EC2, S3, IAM, STS, Boto3
 
-</div>
+**Systems:** Linux, Ubuntu, Windows
 
-These technologies reflect my current learning and project experience, not professional certifications or mastery of every tool.
+**Data:** SQLite, JSON, REST APIs
 
-## 📚 Learning Journal
+**Tools:** Git, GitHub, VS Code
 
-My journal documents the exercises, troubleshooting sessions, and lessons behind my projects.
+These reflect my current learning and hands-on project experience, not professional certifications or mastery of every tool.
 
+## 🎯 Direction
 
-- [July 2026 — Study Log](monthly2026-logs/2026-07-july.md)
-- [August 2026 — Study Log](monthly2026-logs/2026-08-august.md)
-- [September 2026 — Study Log](monthly2026-logs/2026-09-september.md)
-- [October 2026 — Study Log](monthly2026-logs/2026-10-october.md)
-
-## 🎯 What I'm Working Toward
-
-My goal is to graduate with more than theoretical knowledge: practical projects, better Linux and Python fundamentals, AWS experience, and the ability to investigate and explain technical problems independently.
-
-I'm documenting the journey as I build toward that goal, one project at a time.
+I'm working toward a career in cloud, platform, or DevOps engineering. My focus is to strengthen the fundamentals, build useful projects, document problems honestly, and become more independent at designing, troubleshooting, and explaining technical solutions.
 
 ---
 
-<div align="center">
-
 *Learn the fundamentals. Build real things. Understand what breaks. Improve.*
-
-</div>
